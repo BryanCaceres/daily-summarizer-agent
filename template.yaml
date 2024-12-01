@@ -1,0 +1,99 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  langchain_daily_job_summary_agent
+
+  Sample SAM Template for langchain_daily_job_summary_agent
+
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 512
+    Tracing: Active
+    LoggingConfig:
+      LogFormat: JSON
+  Api:
+    TracingEnabled: true
+
+Resources:
+  ModerationInputModel:
+    Type: AWS::ApiGateway::Model
+    Properties:
+      ContentType: application/json
+      RestApiId: !Ref ServerlessRestApi
+      Schema:
+        type: object
+        required:
+          - comment_body
+          - post_id
+          - post_name
+          - user_name
+        properties:
+          comment_body:
+            type: string
+            minLength: 1
+            maxLength: 5000
+          post_id:
+            type: integer
+            minimum: 1
+          post_name:
+            type: string
+            minLength: 1
+            maxLength: 200
+          user_name:
+            type: string
+            minLength: 1
+            maxLength: 100
+          post_url:
+            type: string
+            maxLength: 2083
+
+  ModerateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+      - x86_64
+      Events:
+        Moderate:
+          Type: Api
+          Properties:
+            Path: /moderate
+            Method: post
+            RequestModel:
+              Model: !Ref ModerationInputModel
+              ValidateBody: true
+      Environment:
+        Variables:
+          OPENAI_API_KEY: '{{resolve:ssm:/prod/openai/api-key:1}}'
+          DEFAULT_OPEN_AI_MODEL: '{{resolve:ssm:/prod/openai/model:1}}'
+          DEFAULT_TEMPERATURE: '{{resolve:ssm:/prod/openai/temperature:1}}'
+          DEFAULT_MAX_TOKENS: '{{resolve:ssm:/prod/openai/max-tokens:1}}'
+          TAVILY_API_KEY: '{{resolve:ssm:/prod/tavily/api-key:1}}'
+          SLACK_USER_TOKEN: '{{resolve:ssm:/prod/slack/user-token:1}}'
+          GOOGLE_CLIENT_ID: '{{resolve:ssm:/prod/google/client-id:1}}'
+          GOOGLE_PROJECT_ID: '{{resolve:ssm:/prod/google/project-id:1}}'
+          GOOGLE_AUTH_URI: '{{resolve:ssm:/prod/google/auth-uri:1}}'
+          GOOGLE_TOKEN_URI: '{{resolve:ssm:/prod/google/token-uri:1}}'
+          GOOGLE_AUTH_PROVIDER_X509_CERT_URL: '{{resolve:ssm:/prod/google/auth-provider-x509-cert-url:1}}'
+          GOOGLE_CLIENT_SECRET: '{{resolve:ssm:/prod/google/client-secret:1}}'
+
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name:
+        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName:
+        Ref: ApplicationResourceGroup
+      AutoConfigurationEnabled: 'true'
+Outputs:
+  ModerateApi:
+    Description: Langchain Daily Job Summary Agent API Gateway endpoint URL
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/moderate/"
