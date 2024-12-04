@@ -1,9 +1,7 @@
-from .gmail_tool import gmail_tools
-from .slack_tool import slack_tools
-from .tavily_search_tool import tavily_search
+from .gmail_tool import gmail_tool
+from .tavily_search_tool import tavily_search_tool
 
 __all__ = [
-    "gmail_tools", 
-    "slack_tools", 
-    "tavily_search"
+    "gmail_tool",
+    "tavily_search_tool"
 ]

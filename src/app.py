@@ -1,21 +1,29 @@
 import json
 import traceback
-from services import CommentModerationService
+from services import SummarizerService
+from datetime import datetime
 
-moderation_service = CommentModerationService()
+summarizer_service = SummarizerService()
 
 def lambda_handler(event, context):
     """
-    Langchain Lambda Moderator
+    Langchain Lambda Summarizer
     """
     try:
-        request_body = json.loads(event["body"])
-        moderation_result = moderation_service.execute_moderation(request_body)
+        if "body" in event:  # API Gateway EndPoint
+            request_body = json.loads(event["body"])
+            date = request_body.get("date")
+        elif "date" in event:  # EventBridge from CronJob
+            date = event.get("date")
+        else:
+            date = datetime.now().strftime("%Y-%m-%d")
+
+        summary_result = summarizer_service.execute_summarizer(day=date)
 
         return {
             "statusCode": 200,
             "body": json.dumps({
-                "moderation_result": moderation_result
+                "summary_result": summary_result
             })
         }
     except Exception as e:

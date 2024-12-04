@@ -18,4 +18,4 @@ class TavilySearch:
             description="Search the web for information about words or phrases to be clear in the meaning of a text, always use this tool to understand the meaning of words or phrases."
         )
 
-tavily_search = TavilySearch()
+tavily_search_tool = TavilySearch()

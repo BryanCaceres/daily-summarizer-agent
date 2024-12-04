@@ -1,7 +1,7 @@
 from promts import DailyJobSummarizerPromt
 from .agent_interface import AIAgentInterface
 from langchain.agents import create_tool_calling_agent, AgentExecutor
-from tools import gmail_tools, slack_tools, tavily_search
+from tools import gmail_tool, tavily_search_tool
 import logging
 
 agent_promt_template = DailyJobSummarizerPromt()
@@ -11,19 +11,23 @@ class DailyJobSummarizerAgent(AIAgentInterface):
         super().__init__()
         self._set_agent_config(run_name="summarizer_agent")
         self.agent_promt = agent_promt_template.get_promt()
-        self.tools = [gmail_tools, slack_tools, tavily_search]
+        self.tools = [gmail_tool]
 
-    def execute_agent(self, comment_body: str, moderation_name: str, moderation_reason: str, infraction_evidence: str) -> dict:
+    def execute_agent(self, day: str) -> dict:
         """
-        Execute the hatespeech expert agent
-        :param comment_body: str with the comment body
-        :param moderation_name: str with the moderation name
-        :param moderation_reason: str with the moderation reason
-        :param infraction_evidence: str with the infraction evidence
-        :return: dict with the moderation result
+        Execute the summarizer agent
+        :param day: YYYY-MM-DD str with the day to summarize
+        :return: dict with the summary result
         """
 
-        formatted_tools = self._get_agent_tools_string()
+        formatted_tools = """
+        TavilySearch: To search the web.
+        GmailCreateDraft: To create a draft email.
+        GmailSendMessage: To send a message.
+        GmailSearch: To search emails.
+        GmailGetMessage: To get a single message.
+        GmailGetThread: To get a thread.
+        """
 
         summarizer_agent = create_tool_calling_agent(
             llm=self.llm,
@@ -42,10 +46,7 @@ class DailyJobSummarizerAgent(AIAgentInterface):
 
         result = agent_executor.invoke(
             {
-                "comment_body": comment_body,
-                "moderation_name": moderation_name, 
-                "moderation_reason": moderation_reason, 
-                "infraction_evidence": infraction_evidence, 
+                "day": day,
                 "tools": formatted_tools
             }, 
             config=self.agent_config

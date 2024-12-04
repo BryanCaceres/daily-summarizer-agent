@@ -3,7 +3,7 @@ from promts.promts_interface import PromptsInterface
 
 class DailyJobSummarizerPromt(PromptsInterface):
     def get_promt(self) -> PromptTemplate:
-        template_text = """
+        TEMPLATE_TEXT = """
             <role>
             You are an expert assistant in organizing daily information for users. Your main task is to analyze the emails and Slack messages sent and received by the user on a specific day.
             </role>
@@ -73,7 +73,7 @@ class DailyJobSummarizerPromt(PromptsInterface):
         """
         return PromptTemplate(
             input_variables=["day", "tools"],
-            template=template_text,
+            template=TEMPLATE_TEXT,
             partial_variables={
                 "output_language": self.output_language,
                 "security_instructions": self.security_instructions,

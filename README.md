@@ -2,9 +2,9 @@ Info: Work in progres
 
 --------------
 
-# Langchain Lambda Moderator
+# Langchain Daily Job Summarizer
 
-This is a simple lambda function that uses Langchain to moderate text.
+This is a simple lambda function that uses Langchain to summarize daily job information.
 
 Build the Project in a Docker Container
 
@@ -16,7 +16,7 @@ Start the Local Server with Endpoints Configured in template.yaml
 This allows you to test the endpoints locally.
 
 ```bash
-sam local start-api --port 3004 --env-vars env.json
+sam local start-api --port 3005 --env-vars env.json
 ```
 
 # Deploy the Project on AWS

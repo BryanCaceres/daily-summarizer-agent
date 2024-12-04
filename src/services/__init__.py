@@ -1,5 +1,5 @@
-from .comment_moderation_service import CommentModerationService
+from .summarizer_service import SummarizerService
 
 __all__ = [
-    "CommentModerationService"
+    "SummarizerService"
 ]

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import List
 from core.settings import settings
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import JsonOutputParser
@@ -6,7 +7,7 @@ from langchain_core.runnables import RunnableConfig
 
 class AIAgentInterface(ABC):
     def __init__(self):
-        self.tools = []
+        self.tools: List = []
         self.json_parser = JsonOutputParser()
         self.llm = ChatOpenAI(
             model_name=settings.default_open_ai_model,
@@ -14,16 +15,6 @@ class AIAgentInterface(ABC):
             openai_api_key=settings.openai_api_key
         )
     
-    def _get_agent_tools_string(self) -> str:
-        """
-        Get the agent tools in a formatted string to use in the promts
-        """
-        formatted_tools = ""
-        if self.tools:
-            formatted_tools = "\n".join([f"{tool.__class__.__name__}: {tool.description}" for tool in self.tools])
-
-        return formatted_tools
-
     def _set_agent_config(self, run_name: str):
         """
         Set the agent config for the agent, base config for all agents is set in the interface, the specific config for each agent is set in the agent class
