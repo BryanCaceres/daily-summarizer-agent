@@ -1,9 +1,9 @@
-from agents import DailyJobSummarizerAgent
+from agents import SlackSummarizerAgent
 import logging
 
 class SummarizerService:
     def __init__(self):
-        self.summarizer = DailyJobSummarizerAgent()
+        self.summarizer = SlackSummarizerAgent()
 
     def execute_summarizer(self, day: str, previous_day: str, next_day: str) -> dict:
         """

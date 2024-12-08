@@ -1,5 +1,7 @@
-from .agent_summarizer import DailyJobSummarizerAgent
+from .gmail_summarizer import GmailSummarizerAgent
+from .slack_summarizer import SlackSummarizerAgent
 
 __all__ = [
-    "DailyJobSummarizerAgent",
+    "GmailSummarizerAgent",
+    "SlackSummarizerAgent"
 ]

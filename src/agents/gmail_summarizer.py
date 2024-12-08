@@ -1,20 +1,25 @@
-from promts import DailyJobSummarizerPromt
+from promts import DailyGmailSummarizerPromt
+from typing import List
 from .agent_interface import AIAgentInterface
 from langchain.agents import create_tool_calling_agent, AgentExecutor
-from tools import gmail_toolkit, tavily_search_tool
+from tools import gmail_toolkit
 import logging
 
-agent_promt_template = DailyJobSummarizerPromt()
+agent_promt_template = DailyGmailSummarizerPromt()
 
-class DailyJobSummarizerAgent(AIAgentInterface):
+class GmailSummarizerAgent(AIAgentInterface):
+    """
+    Agent to summarize daily gmail information
+    """
+    agent_promt : str = agent_promt_template.get_prompt()
+    tools : List = [*gmail_toolkit]
+
     def __init__(self):
-        self._set_agent_config(run_name="summarizer_agent")
-        self.agent_promt = agent_promt_template.get_promt()
-        self.tools = [*gmail_toolkit]
+        self._set_agent_config(run_name="gmail_summarizer_agent")
 
     def execute_agent(self, day: str, previous_day: str, next_day: str) -> dict:
         """
-        Execute the summarizer agent
+        Execute the gmail_summarizer agent
         :param day: YYYY-MM-DD str with the day to summarize
         :return: dict with the summary result
         """
@@ -37,7 +42,7 @@ class DailyJobSummarizerAgent(AIAgentInterface):
             handle_tool_errors=True
         )
         
-        logging.info(f"Executing summarizerrrrr for date: {day} (prev: {previous_day}, next: {next_day})")
+        logging.info(f"Executing gmail summarizer agent for date: {day} (prev: {previous_day}, next: {next_day})")
 
         result = agent_executor.invoke(
             {
