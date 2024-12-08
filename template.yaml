@@ -48,7 +48,8 @@ Resources:
           SLACK_USER_TOKEN: '{{resolve:ssm:/prod/slack/user-token:1}}'
           GOOGLE_CREDENTIALS_PATH: '{{resolve:ssm:/prod/google/credentials-path:1}}'
           GOOGLE_DELEGATED_USER: '{{resolve:ssm:/prod/google/delegated-user:1}}'
-
+          SLACK_USER_DISPLAY_NAME: '{{resolve:ssm:/prod/slack/user-display-name:1}}'
+          SLACK_MEMBER_ID: '{{resolve:ssm:/prod/slack/member-id:1}}'
 Outputs:
   SummarizerApi:
     Description: "API Gateway endpoint URL for Prod stage for Daily Job Summarizer"

@@ -6,6 +6,9 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.runnables import RunnableConfig
 
 class AIAgentInterface(ABC):
+    """
+    Interface agent class for all agents to share common methods and configurations
+    """
     tools: List = []
     json_parser : JsonOutputParser = JsonOutputParser()
     llm : ChatOpenAI = ChatOpenAI(
@@ -17,6 +20,7 @@ class AIAgentInterface(ABC):
     def _get_agent_tools_string(self) -> str:
         """
         Get the agent tools in a formatted string to use in the promts
+        This explain the tools that the agent can use and the utility of each tool
         """
         formatted_tools = ""
         if self.tools:
@@ -37,7 +41,8 @@ class AIAgentInterface(ABC):
             run_name=run_name
         )
 
-    def _extract_tool_usage(self, result: dict) -> list:
+    @staticmethod
+    def _extract_tool_usage(result: dict) -> list:
         """
         Extrae información sobre el uso de herramientas de los pasos intermedios
         """

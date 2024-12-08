@@ -1,5 +1,7 @@
-from .promt_job_summarizer import DailyJobSummarizerPromt
+from .gmail_summarizer_promt import DailyGmailSummarizerPromt
+from .slack_summarizer_promt import DailySlackSummarizerPrompt
 
 __all__ = [
-    "DailyJobSummarizerPromt"
+    "DailyGmailSummarizerPromt",
+    "DailySlackSummarizerPrompt"
 ]

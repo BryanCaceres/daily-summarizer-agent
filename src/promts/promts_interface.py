@@ -35,7 +35,7 @@ class PromptsInterface(ABC):
         """
 
     @abstractmethod
-    def get_promt(self) -> PromptTemplate:
+    def get_prompt(self) -> PromptTemplate:
         pass
 
 

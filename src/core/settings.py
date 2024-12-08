@@ -12,6 +12,9 @@ class Settings:
     google_credentials_path = os.getenv("GOOGLE_CREDENTIALS_PATH")
     google_delegated_user = os.getenv("GOOGLE_DELEGATED_USER")
     log_level = os.getenv("LOG_LEVEL")
+    slack_user_token = os.getenv("SLACK_USER_TOKEN")
+    slack_user_display_name = os.getenv("SLACK_USER_DISPLAY_NAME")
+    slack_member_id = os.getenv("SLACK_MEMBER_ID")
 
     def __init__(self):
         logging.basicConfig(level=self.log_level)
