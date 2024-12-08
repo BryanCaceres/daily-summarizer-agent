@@ -1,7 +1,7 @@
-from .gmail_tool import gmail_tool
+from .gmail_tool import gmail_toolkit
 from .tavily_search_tool import tavily_search_tool
 
 __all__ = [
-    "gmail_tool",
+    "gmail_toolkit",
     "tavily_search_tool"
 ]

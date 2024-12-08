@@ -1,33 +1,24 @@
 from promts import DailyJobSummarizerPromt
 from .agent_interface import AIAgentInterface
 from langchain.agents import create_tool_calling_agent, AgentExecutor
-from tools import gmail_tool, tavily_search_tool
+from tools import gmail_toolkit, tavily_search_tool
 import logging
 
 agent_promt_template = DailyJobSummarizerPromt()
 
 class DailyJobSummarizerAgent(AIAgentInterface):
     def __init__(self):
-        super().__init__()
         self._set_agent_config(run_name="summarizer_agent")
         self.agent_promt = agent_promt_template.get_promt()
-        self.tools = [gmail_tool]
+        self.tools = [*gmail_toolkit]
 
-    def execute_agent(self, day: str) -> dict:
+    def execute_agent(self, day: str, previous_day: str, next_day: str) -> dict:
         """
         Execute the summarizer agent
         :param day: YYYY-MM-DD str with the day to summarize
         :return: dict with the summary result
         """
-
-        formatted_tools = """
-        TavilySearch: To search the web.
-        GmailCreateDraft: To create a draft email.
-        GmailSendMessage: To send a message.
-        GmailSearch: To search emails.
-        GmailGetMessage: To get a single message.
-        GmailGetThread: To get a thread.
-        """
+        formatted_tools = self._get_agent_tools_string()
 
         summarizer_agent = create_tool_calling_agent(
             llm=self.llm,
@@ -40,13 +31,19 @@ class DailyJobSummarizerAgent(AIAgentInterface):
             tools=self.tools, 
             verbose=True,
             return_intermediate_steps=True,
-            max_iterations=20,
-            early_stopping_method="force"
+            max_iterations=5,
+            early_stopping_method="force",
+            handle_parsing_errors=True,
+            handle_tool_errors=True
         )
+        
+        logging.info(f"Executing summarizerrrrr for date: {day} (prev: {previous_day}, next: {next_day})")
 
         result = agent_executor.invoke(
             {
                 "day": day,
+                "previous_day": previous_day,
+                "next_day": next_day,
                 "tools": formatted_tools
             }, 
             config=self.agent_config

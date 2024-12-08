@@ -5,7 +5,7 @@ Description: >
 
 Globals:
   Function:
-    Timeout: 60
+    Timeout: 300
     MemorySize: 512
     Tracing: Active
     LoggingConfig:

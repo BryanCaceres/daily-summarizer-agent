@@ -6,14 +6,22 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.runnables import RunnableConfig
 
 class AIAgentInterface(ABC):
-    def __init__(self):
-        self.tools: List = []
-        self.json_parser = JsonOutputParser()
-        self.llm = ChatOpenAI(
+    tools: List = []
+    json_parser : JsonOutputParser = JsonOutputParser()
+    llm : ChatOpenAI = ChatOpenAI(
             model_name=settings.default_open_ai_model,
             temperature=settings.default_temperature,
             openai_api_key=settings.openai_api_key
         )
+
+    def _get_agent_tools_string(self) -> str:
+        """
+        Get the agent tools in a formatted string to use in the promts
+        """
+        formatted_tools = ""
+        if self.tools:
+            formatted_tools = "\n".join([f"{tool.__class__.__name__}: {tool.description}" for tool in self.tools])
+        return formatted_tools
     
     def _set_agent_config(self, run_name: str):
         """

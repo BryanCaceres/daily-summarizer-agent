@@ -1,34 +1,119 @@
 import json
 import traceback
 from services import SummarizerService
-from datetime import datetime
+from datetime import datetime, timedelta
+import logging
 
 summarizer_service = SummarizerService()
 
-def lambda_handler(event, context):
+def get_date_from_event(event):
     """
-    Langchain Lambda Summarizer
+    Extrae la fecha del evento desde diferentes fuentes posibles:
+    - API Gateway (body)
+    - EventBridge/CloudWatch Events (detail)
+    - Invocación directa (date)
+    """
+    # Caso 1: Viene del body (API Gateway)
+    if "body" in event:
+        try:
+            request_body = json.loads(event["body"])
+            if date_str := request_body.get("day"):
+                return date_str
+        except json.JSONDecodeError:
+            pass
+    
+    # Caso 2: Viene de EventBridge/CloudWatch Events
+    if "detail" in event and "day" in event["detail"]:
+        return event["detail"]["day"]
+    
+    # Caso 3: Viene como parámetro directo
+    if "day" in event:
+        return event["day"]
+    
+    # Caso 4: No se proporcionó fecha, usar fecha actual
+    return None
+
+def format_date(date_str: str = None) -> tuple[str, str, str]:
+    """
+    Formatea la fecha y calcula días adyacentes
+    
+    Args:
+        date_str: Fecha en formato YYYY-MM-DD (opcional)
+    
+    Returns:
+        tuple: (date, previous_day, next_day)
+    
+    Raises:
+        ValueError: Si el formato de fecha es inválido
     """
     try:
-        if "body" in event:  # API Gateway EndPoint
-            request_body = json.loads(event["body"])
-            date = request_body.get("date")
-        elif "date" in event:  # EventBridge from CronJob
-            date = event.get("date")
+        # Si no hay fecha, usar la actual
+        if not date_str:
+            date_obj = datetime.now()
+            date_str = date_obj.strftime("%Y-%m-%d")
         else:
-            date = datetime.now().strftime("%Y-%m-%d")
+            # Validar y parsear la fecha proporcionada
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        
+        # Calcular días adyacentes
+        prev_date = date_obj - timedelta(days=1)
+        next_date = date_obj + timedelta(days=1)
+        
+        return (
+            date_str,
+            prev_date.strftime("%Y-%m-%d"),
+            next_date.strftime("%Y-%m-%d")
+        )
+        
+    except ValueError:
+        raise ValueError(
+            f"Formato de fecha inválido: {date_str}. "
+            "Debe ser YYYY-MM-DD"
+        )
 
-        summary_result = summarizer_service.execute_summarizer(day=date)
-
+def lambda_handler(event, context):
+    """
+    Lambda handler que soporta múltiples fuentes de eventos
+    """
+    try:
+        # Obtener fecha del evento
+        date_str = get_date_from_event(event)
+        logging.info(f"Received date: {date_str}")
+        
+        # Formatear fecha y obtener días adyacentes
+        date, previous_day, next_day = format_date(date_str)
+        
+        # Ejecutar el summarizer
+        summary_result = summarizer_service.execute_summarizer(
+            day=date,
+            previous_day=previous_day,
+            next_day=next_day
+        )
+        
         return {
             "statusCode": 200,
             "body": json.dumps({
+                "date": date,
+                "previous_day": previous_day,
+                "next_day": next_day,
                 "summary_result": summary_result
+            })
+        }
+        
+    except ValueError as ve:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({
+                "error": "Fecha inválida",
+                "detail": str(ve)
             })
         }
     except Exception as e:
         traceback.print_exc()
         return {
             "statusCode": 500,
-            "body": json.dumps({"error": str(e)})
+            "body": json.dumps({
+                "error": "Error interno",
+                "detail": str(e)
+            })
         }

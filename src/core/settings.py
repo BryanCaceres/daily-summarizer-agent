@@ -1,7 +1,7 @@
 import os
 import json
 from functools import lru_cache
-
+import logging
 class Settings:
     default_language : str = "Spanish"
     default_max_tokens = os.getenv("DEFAULT_MAX_TOKENS")
@@ -11,7 +11,11 @@ class Settings:
     tavily_api_key = os.getenv("TAVILY_API_KEY")
     google_credentials_path = os.getenv("GOOGLE_CREDENTIALS_PATH")
     google_delegated_user = os.getenv("GOOGLE_DELEGATED_USER")
-    
+    log_level = os.getenv("LOG_LEVEL")
+
+    def __init__(self):
+        logging.basicConfig(level=self.log_level)
+
 @lru_cache()
 def get_settings():
     return Settings()

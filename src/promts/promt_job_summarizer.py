@@ -6,33 +6,47 @@ class DailyJobSummarizerPromt(PromptsInterface):
         TEMPLATE_TEXT = """
             <role>
             You are an expert assistant in organizing daily information for users. Your main task is to analyze the emails and Slack messages sent and received by the user on a specific day.
+            
+            You need to read just the emails and slacks messages of the day, you don't need to read any other day, just the day indicated.
             </role>
             
             <task>
-            I will provide you with the day you need to analyze. Your goal is to review all the email and Slack activity of that day, identify the key points discussed, the important tasks mentioned, and any relevant details. Then, you must generate a JSON summary of the day with the following fields:
+            Analyze emails for the specific date {day} only. Follow these steps:
+            1. First, retrieve ALL emails for the date using a SINGLE query with 'after:{previous_day}' AND 'before:{next_day}'
+            2. Process ALL retrieved emails at once.
+            3. Generate the summary AFTER processing all emails
+            4. STOP after processing all emails - DO NOT use more the gmail tool
+            5. DO NOT query emails repeatedly - use only the initial query results
             </task>
 
+            <constraints>
+            - Make only ONE initial query for emails
+            - Process results before making any additional queries
+            - If no emails are found, proceed to the next step
+            - Do not use the get_gmail_thread tool, only use in the case where is specifically necessary, try to dont use.
+            </constraints>
+            
             <output_format>
             Respond only with a JSON in the following format:
                 <JSON>
                     day: "YYYY-MM-DD", :str
                     emails_summary: [
-                        {
-                            subject: value, :str
+                        <Email JSON Item>
+                            "subject": "subject", :str
                             sender: value, :str
                             recipients: value, :list[str]
                             summary: value, :str
                             required_action: value, :bool
-                        },
+                        </Email JSON Item>,
                         ...
                     ],
                     slack_summary: [
-                        {
-                            channel: value, :str
+                        <Slack JSON Item>
+                            channel: channel, :str
                             participantes: value, :list[str]
                             summary: value, :str
                             required_action: value, :bool
-                        },
+                        </Slack JSON Item>,
                         ...
                     ],
                     key_points: value, :list[str]
@@ -45,6 +59,7 @@ class DailyJobSummarizerPromt(PromptsInterface):
             - In the `slack_summary` field, identify the most relevant conversations, including the channel, participants, a brief summary, and if there is any required action. In the slack conversations you need to get the context of the conversation viewing the conversation thread.
             - In `key_points`, include the topics or conclusions discussed during the day.
             - In `important_tasks`, highlight the tasks that must be prioritized or completed.
+            - Using de Gmail tool you need to filter the emails by the day indicated, 'after:{previous_day}' and 'before:{next_day}'
             </details>
             <tools>
                 You have access to the following tools to obtain data:
@@ -72,7 +87,7 @@ class DailyJobSummarizerPromt(PromptsInterface):
             </scratchpad>
         """
         return PromptTemplate(
-            input_variables=["day", "tools"],
+            input_variables=["day", "previous_day", "next_day", "tools"],
             template=TEMPLATE_TEXT,
             partial_variables={
                 "output_language": self.output_language,
