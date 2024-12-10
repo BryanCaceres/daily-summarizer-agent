@@ -2,6 +2,12 @@ from langchain_core.prompts import PromptTemplate
 from promts.promts_interface import PromptsInterface
 
 class DailySlackSummarizerPrompt(PromptsInterface):
+    """
+    Prompt for summarizing the day's activities from Slack.
+    """
+    def __init__(self):
+        super().__init__()
+    
     def get_prompt(self) -> PromptTemplate:
         TEMPLATE_TEXT = """
             <role>

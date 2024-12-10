@@ -1,10 +1,18 @@
-from agents import SlackSummarizerAgent, GmailSummarizerAgent, GeneralSummarizerAgent
-from tenacity import retry, stop_after_attempt, wait_exponential
 import logging
 import traceback
 
+from agents import SlackSummarizerAgent, GmailSummarizerAgent, GeneralSummarizerAgent
+from tenacity import retry, stop_after_attempt, wait_exponential
+from .slack_notification_service import SlackNotificationService
+import logging
+
 class SummarizerService:
-    def __init__(self):
+    """
+    Service to execute the summarizer workflow
+    Get the summary from the different work sources and send the summary to the slack channel
+    """
+    def __init__(self, slack_notification_service: SlackNotificationService = None):
+        self.slack_notification_service = slack_notification_service if slack_notification_service is not None else SlackNotificationService()
         self.gmail_summarizer = GmailSummarizerAgent()
         self.slack_summarizer = SlackSummarizerAgent()
         self.general_summarizer = GeneralSummarizerAgent()
@@ -37,6 +45,13 @@ class SummarizerService:
                 day=day,
                 gmail_summary_json=gmail_summary_result,
                 slack_summary_json=slack_summary_result
+            )
+            
+            logging.info(f"##########General summary result: {general_summary_result}")
+
+            self.slack_notification_service.send_notification(
+                    str(general_summary_result['summary_result']['daily_summary']),
+                    channel='#daily-bot'
             )
 
             return general_summary_result

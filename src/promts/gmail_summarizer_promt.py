@@ -2,6 +2,12 @@ from langchain_core.prompts import PromptTemplate
 from promts.promts_interface import PromptsInterface
 
 class DailyGmailSummarizerPromt(PromptsInterface):
+    """
+    Prompt for summarizing the day's activities from Gmail.
+    """
+    def __init__(self):
+        super().__init__()
+    
     def get_prompt(self) -> PromptTemplate:
         TEMPLATE_TEXT = """
             <role>
@@ -19,14 +25,14 @@ class DailyGmailSummarizerPromt(PromptsInterface):
             3. Generate the summary AFTER processing all emails
             4. STOP after processing all emails - DO NOT use more the gmail tool
             5. DO NOT query emails repeatedly - use only the initial query results
-            6. Check the mail sended by the user, you need to get the context of the conversation viewing the email thread.
+            6. Only use the get_gmail_thread tool when you specifically need to get the context of the conversation. But you can only use this tool once per email, no more than one time per email.
             </task>
 
             <constraints>
             - Make only ONE initial query for emails
             - Process results before making any additional queries
             - If no emails are found, proceed to the next step
-            - Do not use the get_gmail_thread tool, only use in the case where is specifically necessary, for example, when you need to get the context of the conversation for a email sended by the user.Only in this case use this tool.
+            - Do not use the get_gmail_thread tool, only use in the case where is specifically necessary, for example, when you need to get the context of the conversation for a email sended by the user.Only in this case use this tool, use the less as possible this tool.
             </constraints>
             
             <output_format>
