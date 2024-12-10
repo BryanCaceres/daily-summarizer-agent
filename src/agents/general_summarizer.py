@@ -2,7 +2,8 @@ from promts import DaySummarizerPromt
 from typing import List
 from .agent_interface import AIAgentInterface
 from langchain.agents import create_tool_calling_agent, AgentExecutor
-from tools import slack_send_message_tool
+from tools import tavily_search_tool
+
 
 agent_promt_template = DaySummarizerPromt()
 
@@ -11,7 +12,7 @@ class GeneralSummarizerAgent(AIAgentInterface):
     Agent to summarize daily gmail information
     """
     agent_promt : str = agent_promt_template.get_prompt()
-    tools : List = [slack_send_message_tool]
+    tools : List = [tavily_search_tool]
 
     def __init__(self):
         self._set_agent_config(run_name="general_summarizer_agent")

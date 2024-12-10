@@ -36,7 +36,7 @@ class GmailSummarizerAgent(AIAgentInterface):
             tools=self.tools, 
             verbose=True,
             return_intermediate_steps=True,
-            max_iterations=5,
+            max_iterations=15,
             early_stopping_method="force",
             handle_parsing_errors=True,
             handle_tool_errors=True

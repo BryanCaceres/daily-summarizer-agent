@@ -28,45 +28,40 @@ class DaySummarizerPromt(PromptsInterface):
                - Highlight important decisions, agreements, or actions taken during the day.
                - Emphasize tasks that the user completed, worked on, or needs to follow up on.
                - Include key points and relevant takeaways that would help the user remember what they did and what needs to be done next.
+               - Include the names of the people involved in the conversations, if you can't find the name, use the email address o the slack alias.
 
             3. Present the final consolidated summary in a structured, easy-to-read format. For example:
-               - A brief overview of main activities
+               - A brief overview of main activities was done in the day
                - Key points and achievements
                - Follow-up tasks or pending items
                - Any noteworthy conversations or decisions made
 
-            4. Once the consolidated summary is generated, use the Slack tool to post this summary as a message to the #daily-bot channel.
             </task>
-
             <constraints>
             - Keep the summary focused, do not include unnecessary details.
-            - Ensure all content is in English.
             - Do not provide raw JSON input in the final posted message; use a clear, human-readable format.
             - Do not re-query any tools for more data. Use only the data provided by the summaries.
-            - The output posted to Slack should be ready for the user to read directly in their stand-up meeting.
-            - You can only use the slack postmessage tool once, when the message is sent, you must stop the execution of the agent, your job is done.
+            -The ressume must be optimized for the user to read it directly in the stand-up meeting.
+            -Include as you can the names of the people involved in the conversations, if you can't find the name, use the email address o the slack alias.
             </constraints>
-
-            <tools>
-                You have access to the following tool to post the message:
-                {tools}
-
-                Example usage:
-                SlackPostMessage(channel="#daily-bot", text="Bryan {day} summary...")
-            </tools>
-
             <input>
                 Gmail Summary JSON: {gmail_summary_json}
                 Slack Summary JSON: {slack_summary_json}
             </input>
+            <output_format>
+            Respond only with a JSON in the following format:
+                <JSON>
+                    day: "YYYY-MM-DD", :str
+                    daily_summary: value, :str
+                </JSON>
+            </output_format>
 
             <instructions>
             1. Read the provided Gmail and Slack summaries.
             2. Merge and distill them into a single, well-structured summary.
-            3. Use SlackPostMessage tool to send the final summary to the #daily-bot channel.
-            4. When the message in sent, you must stop the execution of the agent, your job is done.
+            3. Use the daily_summary field to store the final summary.
+            4. Do not include any other field in the JSON.
             </instructions>
-
             <constraints>
                 {security_instructions}
                 <output_response_language> 
@@ -80,7 +75,7 @@ class DaySummarizerPromt(PromptsInterface):
             </scratchpad>
         """
         return PromptTemplate(
-            input_variables=["day","gmail_summary_json", "slack_summary_json", "tools"],
+            input_variables=["day","gmail_summary_json", "slack_summary_json"],
             template=TEMPLATE_TEXT,
             partial_variables={
                 "security_instructions": self.security_instructions,
