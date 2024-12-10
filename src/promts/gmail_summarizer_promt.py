@@ -33,6 +33,9 @@ class DailyGmailSummarizerPromt(PromptsInterface):
             Respond only with a JSON in the following format:
                 <JSON>
                     day: "YYYY-MM-DD", :str
+                    key_points: value, :list[str]
+                    important_tasks: value, :list[str]
+                    general_detailed_summary: value, :str
                     emails_summary: [
                         <Email JSON Item>
                             subject: "subject", :str
@@ -45,12 +48,9 @@ class DailyGmailSummarizerPromt(PromptsInterface):
                             is_transactional: value, :bool
                             is_emailmkt_campaign: value, :bool
                             is_automatic_reply: value, :bool
-                            thread_summary: value, :str (only if the email is part of a thread)
                         </Email JSON Item>,
                         ...
                     ],
-                    key_points: value, :list[str]
-                    important_tasks: value, :list[str]
                 </JSON>
             </output_format>
 
@@ -60,6 +60,9 @@ class DailyGmailSummarizerPromt(PromptsInterface):
             - In `important_tasks`, highlight the tasks that must be prioritized or completed.
             - Using de Gmail tool you need to filter the emails by the day indicated, 'after:{previous_day}' and 'before:{next_day}'
             -Use the boolean fields to identify if the email is a transactional, emailmkt campaign or an automatic reply to not include this information in the summary.
+            -If the email is a transactional, emailmkt campaign or an automatic reply the relevance_score must be 0.
+            - The relevance score must be higher in the conversation emails, the emails sended by the user are the most important.
+            - Same case for the emails received by the user for any project or task.
             -Use the relevance_score field to identify the relevance of the email to the user, this will help you to prioritize the emails in the summary.
             -Order the emails in the summary by the relevance_score field from highest to lowest.
             </details>

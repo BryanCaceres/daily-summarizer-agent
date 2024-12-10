@@ -37,27 +37,23 @@ class DailySlackSummarizerPrompt(PromptsInterface):
             Respond only with a JSON in the following format:
             <JSON>
                 day: "YYYY-MM-DD", :str
-                slack_summary: [
-                    <Slack Summary JSON Item>
-                        where: channel_name, conversation with X user, etc :str
-                        messages: [
-                            <Message JSON Item>
-                                user: value, :str
-                                content_summary: value, :str
-                                relevance_score: :int value between 0 and 100
-                                required_action: value, :bool
-                                raw_content: value, :str
-                                is_important_announcement: value, :bool
-                                is_thread_reply: value, :bool
-                                thread_summary: value, :str (only if the message is part of a thread)
-                            </Message JSON Item>,
-                            ...
-                        ]
-                    </Slack JSON Item>,
-                    ...
-                ],
                 key_points: value, :list[str]
                 important_tasks: value, :list[str]
+                general_detailed_summary: value, :str
+                summary_evidences: [
+                    <Slack Summary JSON Item>
+                        where: channel_name, conversation with X user, etc :str
+                        user: value, :str
+                        content_summary: value, :str
+                        relevance_score: :int value between 0 and 100
+                        required_action: value, :bool
+                        raw_content: value, :str
+                        is_important_announcement: value, :bool
+                        is_thread_reply: value, :bool
+                        thread_summary: value, :str (only if the message is part of a thread)
+                    <Slack Summary JSON Item>,
+                    ...
+                ]
             </JSON>
             </output_format>
 
@@ -66,6 +62,8 @@ class DailySlackSummarizerPrompt(PromptsInterface):
             - In the slack_summary field, analyze each retrieved channel, list the messages of the day that the user interacted with or that are relevant to the user, and include details such as the user who posted, a brief summary of the message, its raw content, and whether an action is required.
             - If a message is part of a thread, attempt to understand the context of that thread from messages on the same day and provide a thread_summary.
             - Use the relevance_score to highlight how important each message is to the user. Order the messages within each channel by relevance_score from highest to lowest.
+            - The relevance score must be higher in the conversation messages about projects or tasks where the user is involved.
+            - The relevance score must be lower in general conversations where the user is not involved.
             - In key_points, summarize the main topics or conclusions discussed during that day.
             - In important_tasks, identify action items or tasks that should be prioritized or completed.
             - If no messages or relevant data are found, leave those sections empty but still return the JSON structure.

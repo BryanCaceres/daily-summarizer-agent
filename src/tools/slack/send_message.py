@@ -18,12 +18,12 @@ class SendMessageSchema(BaseModel):
     )
 
 
-class SlackSendMessage(SlackBaseTool):  # type: ignore[override, override]
+class SlackSendMessage(SlackBaseTool):
     """Tool for sending a message in Slack."""
 
     name: str = "send_message"
     description: str = (
-        "Use this tool to send a message with the provided message fields."
+        "Use this tool to send a message with the provided message fields. Its important send the messages just once, do not repeat the sending of a same message."
     )
     args_schema: Type[SendMessageSchema] = SendMessageSchema
 
