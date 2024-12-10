@@ -26,7 +26,6 @@ class SlackGetMessage(SlackBaseTool):
         channel_id: str,
         run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
-        logging.getLogger(__name__)
         try:
             result = self.client.conversations_history(channel=channel_id)
             messages = result["messages"]
