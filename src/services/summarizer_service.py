@@ -47,14 +47,18 @@ class SummarizerService:
                 slack_summary_json=slack_summary_result
             )
             
-            logging.info(f"##########General summary result: {general_summary_result}")
+            logging.info(f"######## General summary result: {general_summary_result}")
 
             self.slack_notification_service.send_notification(
                     str(general_summary_result['summary_result']['daily_summary']),
                     channel='#daily-bot'
             )
 
-            return general_summary_result
+            return {
+                "general_summary_result": general_summary_result,
+                "slack_summary_result": slack_summary_result,
+                "gmail_summary_result": gmail_summary_result
+            }
 
         except Exception as e:
             logging.error(f"Error executing summarizer: {e}")

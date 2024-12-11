@@ -1,10 +1,13 @@
 from langchain_core.prompts import PromptTemplate
-from promts.promts_interface import PromptsInterface
+from prompts.prompts_interface import PromptsInterface
 
-class DaySummarizerPromt(PromptsInterface):
+class GeneralSummarizerPrompt(PromptsInterface):
     """
     Prompt for summarizing the day's activities from Gmail and Slack.
     """
+    def __init__(self):
+        super().__init__()
+
     def get_prompt(self) -> PromptTemplate:
         TEMPLATE_TEXT = """
             <role>
@@ -14,10 +17,12 @@ class DaySummarizerPromt(PromptsInterface):
             2. A summary of {day} Slack activity.
 
             Your task is to combine these two summaries into a single, consolidated daily summary of what the user accomplished and dealt with during the previous day. This consolidated summary should be organized, concise, and focused on key points, decisions, and action items.
-
-            After creating this consolidated summary, you will use the provided Slack tool to post the summary to the #daily-bot channel, so the user can easily reference it during their next morning stand-up meeting.
             
-            Once the message is sent in Slack channel, you must stop the execution of the agent, your job is done.This is the main rule that you need to follow.
+            Mentions as much as you can the names of the people involved in the conversations, if you can't find the name, use the email address o the slack alias, and add the proyect name if you can.
+
+            The summary must be in a structure optimized for the human web reader. With the correct spacing and line breaks, not just a paragraph with a lot of text.
+            
+            Use titles and subtitles to organize the summary and add tags to the most important information after the descripción of each relevant topic in the summary.
             </role>
 
             <task>

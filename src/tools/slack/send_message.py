@@ -4,7 +4,6 @@ from langchain_core.callbacks import CallbackManagerForToolRun
 from pydantic import BaseModel, Field
 from .base import SlackBaseTool
 
-
 class SendMessageSchema(BaseModel):
     """Input for SendMessageTool."""
 

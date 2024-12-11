@@ -19,7 +19,7 @@ class AIAgentInterface(ABC):
 
     def _get_agent_tools_string(self) -> str:
         """
-        Get the agent tools in a formatted string to use in the promts
+        Get the agent tools in a formatted string to use in the prompts
         This explain the tools that the agent can use and the utility of each tool
         """
         formatted_tools = ""

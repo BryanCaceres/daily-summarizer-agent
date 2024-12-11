@@ -1,4 +1,4 @@
-from promts import DailySlackSummarizerPrompt
+from prompts import DailySlackSummarizerPrompt
 from typing import List
 from .agent_interface import AIAgentInterface
 from langchain.agents import create_tool_calling_agent, AgentExecutor
@@ -6,13 +6,13 @@ from tools import slack_search_toolkit
 from core.settings import settings
 import logging
 
-agent_promt_template = DailySlackSummarizerPrompt()
+agent_prompt_template = DailySlackSummarizerPrompt()
 
 class SlackSummarizerAgent(AIAgentInterface):
     """
     Agent to summarize daily gmail information
     """
-    agent_promt : str = agent_promt_template.get_prompt()
+    agent_prompt : str = agent_prompt_template.get_prompt()
     tools : List = [*slack_search_toolkit]
 
     def __init__(self):
@@ -29,7 +29,7 @@ class SlackSummarizerAgent(AIAgentInterface):
         summarizer_agent = create_tool_calling_agent(
             llm=self.llm,
             tools=self.tools,
-            prompt=self.agent_promt
+            prompt=self.agent_prompt
         )
 
         agent_executor = AgentExecutor(

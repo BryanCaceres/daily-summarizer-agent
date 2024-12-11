@@ -1,5 +1,5 @@
 from langchain_core.prompts import PromptTemplate
-from promts.promts_interface import PromptsInterface
+from prompts.prompts_interface import PromptsInterface
 
 class DailySlackSummarizerPrompt(PromptsInterface):
     """
