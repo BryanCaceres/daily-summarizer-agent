@@ -1,17 +1,17 @@
-from promts import DailyGmailSummarizerPromt
+from prompts import DailyGmailSummarizerPrompt
 from typing import List
 from .agent_interface import AIAgentInterface
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from tools import gmail_toolkit
 import logging
 
-agent_promt_template = DailyGmailSummarizerPromt()
+agent_prompt_template = DailyGmailSummarizerPrompt()
 
 class GmailSummarizerAgent(AIAgentInterface):
     """
     Agent to summarize daily gmail information
     """
-    agent_promt : str = agent_promt_template.get_prompt()
+    agent_prompt : str = agent_prompt_template.get_prompt()
     tools : List = [*gmail_toolkit]
 
     def __init__(self):
@@ -28,7 +28,7 @@ class GmailSummarizerAgent(AIAgentInterface):
         summarizer_agent = create_tool_calling_agent(
             llm=self.llm,
             tools=self.tools,
-            prompt=self.agent_promt
+            prompt=self.agent_prompt
         )
 
         agent_executor = AgentExecutor(

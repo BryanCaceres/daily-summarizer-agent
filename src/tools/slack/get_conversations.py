@@ -133,7 +133,6 @@ class SlackGetConversations(SlackBaseTool):
             JSON string containing all relevant conversations
         """
         try:
-            # Convert day to timestamp range
             date_obj = datetime.strptime(day, "%Y-%m-%d")
             start_ts = datetime(
                 date_obj.year, date_obj.month, date_obj.day

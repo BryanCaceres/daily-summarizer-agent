@@ -2,6 +2,9 @@ import os
 import json
 from functools import lru_cache
 import logging
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
 class Settings:
     default_language : str = "Spanish"
     default_max_tokens = os.getenv("DEFAULT_MAX_TOKENS")
