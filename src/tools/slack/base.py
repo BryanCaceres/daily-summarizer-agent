@@ -6,5 +6,5 @@ from core.settings import settings
 
 class SlackBaseTool(BaseTool):
     """Base class for Slack tools."""
-    client: WebClient = WebClient(token=settings.slack_user_token)
+    client: WebClient = WebClient(token=settings.SLACK_USER_TOKEN)
     """The WebClient object."""

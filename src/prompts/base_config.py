@@ -16,7 +16,7 @@ class BasePromptConfig:
     """
     output_language: str = f"""
         <output_response_language> 
-            You must respond always in {settings.default_language}.
+            You must respond always in {settings.DEFAULT_LANGUAGE}.
         </output_response_language>
     """
 

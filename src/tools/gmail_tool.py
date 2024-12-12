@@ -12,10 +12,10 @@ SCOPES = [
 ]
 
 credentials = get_gmail_credentials(
-    service_account_file=settings.google_credentials_path,
+    service_account_file=settings.GOOGLE_CREDENTIALS_PATH,
     scopes=SCOPES,
     use_domain_wide=True,
-    delegated_user=settings.google_delegated_user
+    delegated_user=settings.GOOGLE_DELEGATED_USER
 )
 api_resource = build_resource_service(credentials=credentials)
 toolkit = GmailToolkit(api_resource=api_resource)

@@ -12,9 +12,9 @@ class AIAgentInterface(ABC):
     tools: List = []
     json_parser : JsonOutputParser = JsonOutputParser()
     llm : ChatOpenAI = ChatOpenAI(
-            model_name=settings.default_open_ai_model,
-            temperature=settings.default_temperature,
-            openai_api_key=settings.openai_api_key
+            model_name=settings.DEFAULT_OPEN_AI_MODEL,
+            temperature=settings.DEFAULT_TEMPERATURE,
+            openai_api_key=settings.OPENAI_API_KEY
         )
 
     def _get_agent_tools_string(self) -> str:

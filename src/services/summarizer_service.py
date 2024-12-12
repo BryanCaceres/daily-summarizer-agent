@@ -2,6 +2,8 @@ import logging
 import traceback
 
 from agents import SlackSummarizerAgent, GmailSummarizerAgent, GeneralSummarizerAgent
+from .pinecone_service import PineconeService
+from langchain_core.documents import Document
 from tenacity import retry, stop_after_attempt, wait_exponential
 from .slack_notification_service import SlackNotificationService
 import logging
@@ -16,8 +18,9 @@ class SummarizerService:
         self.gmail_summarizer = GmailSummarizerAgent()
         self.slack_summarizer = SlackSummarizerAgent()
         self.general_summarizer = GeneralSummarizerAgent()
+        self.vector_store = PineconeService()
 
-    @retry(stop=stop_after_attempt(10), wait=wait_exponential(multiplier=1, min=4, max=15))
+    #@retry(stop=stop_after_attempt(10), wait=wait_exponential(multiplier=1, min=4, max=15))
     def execute_summarizer(self, day: str, previous_day: str, next_day: str) -> dict:
         """
         Execute the summarizer process with the different agents
@@ -48,11 +51,15 @@ class SummarizerService:
             )
             
             logging.info(f"######## General summary result: {general_summary_result}")
+            
+            raw_summary = general_summary_result['summary_result']['daily_summary']
 
             self.slack_notification_service.send_notification(
-                    str(general_summary_result['summary_result']['daily_summary']),
+                    str(raw_summary),
                     channel='#daily-bot'
             )
+            
+            self.vector_store.add_documents([Document(page_content=raw_summary, metadata={"day": day})])
 
             return {
                 "general_summary_result": general_summary_result,
