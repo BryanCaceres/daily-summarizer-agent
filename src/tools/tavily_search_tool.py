@@ -3,7 +3,7 @@ from core.settings import settings
 
 class TavilySearch:
     def __init__(self):
-        if not settings.tavily_api_key:
+        if not settings.TAVILY_API_KEY:
             raise ValueError("TAVILY_API_KEY is not set in the environment variables")
         self.set_tool()
     

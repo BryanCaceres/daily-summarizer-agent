@@ -50,6 +50,9 @@ Resources:
           GOOGLE_DELEGATED_USER: '{{resolve:ssm:/prod/google/delegated-user:1}}'
           SLACK_USER_DISPLAY_NAME: '{{resolve:ssm:/prod/slack/user-display-name:1}}'
           SLACK_MEMBER_ID: '{{resolve:ssm:/prod/slack/member-id:1}}'
+          PINECONE_API_KEY: '{{resolve:ssm:/prod/pinecone/api-key:1}}'
+          BASE_PINECONE_INDEX_NAME: '{{resolve:ssm:/prod/pinecone/index-name:1}}'
+          DEFAULT_OPENAI_EMBEDDING_MODEL: '{{resolve:ssm:/prod/openai/embedding-model:1}}'
 Outputs:
   SummarizerApi:
     Description: "API Gateway endpoint URL for Prod stage for Daily Job Summarizer"

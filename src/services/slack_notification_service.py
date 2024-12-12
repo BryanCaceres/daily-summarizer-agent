@@ -8,7 +8,7 @@ class SlackNotificationService():
     """
     Notifications for Slack channels
     """
-    client : WebClient = WebClient(token=settings.slack_user_token)
+    client : WebClient = WebClient(token=settings.SLACK_USER_TOKEN)
 
     def send_notification(self, message: str, **kwargs: Dict[str, Any]) -> bool:
         channel = kwargs.get('channel', '#daily-bot')

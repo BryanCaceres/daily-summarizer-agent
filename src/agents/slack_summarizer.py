@@ -50,8 +50,8 @@ class SlackSummarizerAgent(AIAgentInterface):
                 "day": day,
                 "previous_day": previous_day,
                 "next_day": next_day,
-                "slack_user_display_name": settings.slack_user_display_name,
-                "slack_member_id": settings.slack_member_id,
+                "slack_user_display_name": settings.SLACK_USER_DISPLAY_NAME,
+                "slack_member_id": settings.SLACK_MEMBER_ID,
                 "tools": formatted_tools
             }, 
             config=self.agent_config
