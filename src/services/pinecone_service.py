@@ -12,7 +12,7 @@ from langchain_core.documents import Document
 
 class PineconeService:
     """
-    Servicio Singleton para gestionar la base de datos vectorial Pinecone.
+    Singleton service to manage the Pinecone vector database to add and query documents
     """
     _instance = None
     
