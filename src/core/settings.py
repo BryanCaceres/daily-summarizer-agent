@@ -31,6 +31,10 @@ class Settings:
     # Logging configuration
     LOG_LEVEL = os.getenv("LOG_LEVEL")
 
+    # DynamoDB configuration
+    DYNAMODB_REGION_NAME = os.getenv("DYNAMODB_REGION_NAME")
+    TAGS_TABLE = os.getenv("TAGS_TABLE")
+
     def __init__(self):
         logging.basicConfig(level=self.LOG_LEVEL)
 

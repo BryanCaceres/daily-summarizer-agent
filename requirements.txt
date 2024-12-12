@@ -1,0 +1,14 @@
+langchain
+langchain-community
+langchain-core
+langchain-openai
+langchain-text-splitters
+langchain-google-community[gmail]
+beautifulsoup4
+slack-sdk
+pydantic-settings
+tenacity
+langchain-pinecone 
+pinecone-notebooks
+tiktoken>=0.5.1
+boto3
