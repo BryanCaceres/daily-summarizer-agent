@@ -8,7 +8,7 @@ from dataclasses import dataclass
 class Settings:
     # General configuration
     DEFAULT_LANGUAGE: str = "Spanish"
-
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT")
     # OpenAI configuration
     DEFAULT_MAX_TOKENS = os.getenv("DEFAULT_MAX_TOKENS")
     DEFAULT_OPEN_AI_MODEL = os.getenv("DEFAULT_OPEN_AI_MODEL")
@@ -34,6 +34,7 @@ class Settings:
     # DynamoDB configuration
     DYNAMODB_REGION_NAME = os.getenv("DYNAMODB_REGION_NAME")
     TAGS_TABLE = os.getenv("TAGS_TABLE")
+    SUMMARY_TABLE = os.getenv("SUMMARIES_TABLE")
 
     def __init__(self):
         logging.basicConfig(level=self.LOG_LEVEL)

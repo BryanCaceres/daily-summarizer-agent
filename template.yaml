@@ -53,6 +53,8 @@ Resources:
           PINECONE_API_KEY: '{{resolve:ssm:/prod/pinecone/api-key:1}}'
           BASE_PINECONE_INDEX_NAME: '{{resolve:ssm:/prod/pinecone/index-name:1}}'
           DEFAULT_OPENAI_EMBEDDING_MODEL: '{{resolve:ssm:/prod/openai/embedding-model:1}}'
+          DYNAMODB_REGION_NAME: '{{resolve:ssm:/prod/dynamodb/region-name:1}}'
+          TAGS_TABLE: '{{resolve:ssm:/prod/dynamodb/tags-table:1}}'
 Outputs:
   SummarizerApi:
     Description: "API Gateway endpoint URL for Prod stage for Daily Job Summarizer"
