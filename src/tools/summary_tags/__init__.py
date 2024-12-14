@@ -1,7 +1,7 @@
-from .get_tags_tool import GetTagsTool
-from .create_tags_tool import CreateTagsTool
+from .get_tags_tool import get_tags_tool
+from .create_tags_tool import create_tags_tool
 
-tags_toolkit = [
-    GetTagsTool(),
-    CreateTagsTool()
+__all__ = [
+    get_tags_tool,
+    create_tags_tool
 ]

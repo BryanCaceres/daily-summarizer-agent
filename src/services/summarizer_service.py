@@ -7,6 +7,7 @@ from langchain_core.documents import Document
 from tenacity import retry, stop_after_attempt, wait_exponential
 from .slack_notification_service import SlackNotificationService
 import logging
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 class SummarizerService:
     """
@@ -15,13 +16,12 @@ class SummarizerService:
     """
     def __init__(self, slack_notification_service: SlackNotificationService = None):
         self.slack_notification_service = slack_notification_service if slack_notification_service is not None else SlackNotificationService()
-        self.gmail_summarizer = GmailSummarizerAgent()
-        self.slack_summarizer = SlackSummarizerAgent()
+        self.gmail_summarizer = GmailSummarizerAgent(dummy_mode=True)
+        self.slack_summarizer = SlackSummarizerAgent(dummy_mode=True)
         self.general_summarizer = GeneralSummarizerAgent()
         self.vector_store = PineconeService()
         self.tag_extractor = TagExtractorAgent()
 
-    @retry(stop=stop_after_attempt(10), wait=wait_exponential(multiplier=1, min=1, max=2))
     def execute_summarizer(self, day: str, previous_day: str, next_day: str) -> dict:
         """
         Execute the summarizer process with the different agents
@@ -60,7 +60,7 @@ class SummarizerService:
             )
             summary_tags = tag_extractor_result['tags_result']
             
-            logging.info(f"######## Tag extractor result: {summary_tags}")
+            logging.info(f"######## Tag extractor result: {summary_tags['tags']}")
             
             raw_summary = raw_summary + "\n\n" + str(summary_tags)
 
@@ -68,9 +68,9 @@ class SummarizerService:
                     str(raw_summary),
                     channel='#daily-bot'
             )
-            
-            self.vector_store.add_documents([Document(page_content=raw_summary, metadata={"day": day})])
 
+            self.vector_store.add_documents([Document(page_content=raw_summary, metadata={"day": day})])
+            
             return {
                 "general_summary_result": general_summary_result,
                 "slack_summary_result": slack_summary_result,

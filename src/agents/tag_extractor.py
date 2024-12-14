@@ -2,8 +2,7 @@ from prompts import TagExtractorPrompt
 from typing import List
 from .agent_interface import AIAgentInterface
 from langchain.agents import create_tool_calling_agent, AgentExecutor
-from tools import tags_toolkit
-
+from tools import get_tags_tool, create_tags_tool
 
 agent_prompt_template = TagExtractorPrompt()
 
@@ -12,7 +11,7 @@ class TagExtractorAgent(AIAgentInterface):
     Agent to summarize daily gmail information
     """
     agent_prompt : str = agent_prompt_template.get_prompt()
-    tools : List = [*tags_toolkit]
+    tools : List = [get_tags_tool, create_tags_tool]
 
     def __init__(self, run_name: str = "tag_extractor_agent"):
         self._set_agent_config(run_name=run_name)
@@ -24,19 +23,19 @@ class TagExtractorAgent(AIAgentInterface):
         :return: dict with the tags
         """
         formatted_tools = self._get_agent_tools_string()
-
+        
         summarizer_agent = create_tool_calling_agent(
             llm=self.llm,
             tools=self.tools,
             prompt=self.agent_prompt
         )
-
+        
         agent_executor = AgentExecutor(
             agent=summarizer_agent, 
             tools=self.tools, 
             verbose=True,
             return_intermediate_steps=True,
-            max_iterations=5,
+            max_iterations=10,
             early_stopping_method="force",
             handle_parsing_errors=True,
             handle_tool_errors=True
@@ -46,7 +45,7 @@ class TagExtractorAgent(AIAgentInterface):
             {
                 "daily_summary": summary,
                 "tools": formatted_tools
-            }, 
+            },
             config=self.agent_config
         )
         parsed_result = self.json_parser.parse(result.get("output", "{}"))
@@ -56,4 +55,7 @@ class TagExtractorAgent(AIAgentInterface):
             "tool_usage": self._extract_tool_usage(result)
         }
 
+        create_tags_tool.reset_usage_count()
+
         return enriched_response
+

@@ -212,6 +212,8 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+src/agents/dummy_agent_responses/*
+!src/agents/dummy_agent_responses/example.py
 
 ### VisualStudioCode ###
 .vscode/*

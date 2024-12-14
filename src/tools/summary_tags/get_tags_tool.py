@@ -1,13 +1,14 @@
 from langchain_core.tools import BaseTool
 from langchain_core.callbacks import CallbackManagerForToolRun
-from typing import Optional, Any
+from typing import Optional
 from services import DynamoDbService
 import json
 from core.settings import settings
+from pydantic import Field
 
 class GetTagsTool(BaseTool):
     """
-    Tool to get existing tags in the database
+    Tool to get existing tags from the database
     """
     name: str = "get_existing_tags"
     description: str = (
@@ -15,9 +16,7 @@ class GetTagsTool(BaseTool):
         "Useful to verify previous tags before creating new ones."
     )
 
-    def __init__(self, table_name: str = settings.TAGS_TABLE):
-        super().__init__()
-        self.dynamo_service = DynamoDbService(table_name=table_name)
+    dynamo_service: DynamoDbService = Field(default_factory=lambda: DynamoDbService(table_name=settings.TAGS_TABLE))
 
     def _run(
         self, 
@@ -28,3 +27,5 @@ class GetTagsTool(BaseTool):
             return json.dumps(result['items'], ensure_ascii=False)
         except Exception as e:
             return f"Error getting tags: {str(e)}"
+
+get_tags_tool = GetTagsTool()

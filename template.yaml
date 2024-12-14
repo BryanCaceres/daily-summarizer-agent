@@ -40,21 +40,61 @@ Resources:
               }
       Environment:
         Variables:
-          OPENAI_API_KEY: '{{resolve:ssm:/prod/openai/api-key:1}}'
-          DEFAULT_OPEN_AI_MODEL: '{{resolve:ssm:/prod/openai/model:1}}'
-          DEFAULT_TEMPERATURE: '{{resolve:ssm:/prod/openai/temperature:1}}'
-          DEFAULT_MAX_TOKENS: '{{resolve:ssm:/prod/openai/max-tokens:1}}'
-          TAVILY_API_KEY: '{{resolve:ssm:/prod/tavily/api-key:1}}'
-          SLACK_USER_TOKEN: '{{resolve:ssm:/prod/slack/user-token:1}}'
-          GOOGLE_CREDENTIALS_PATH: '{{resolve:ssm:/prod/google/credentials-path:1}}'
-          GOOGLE_DELEGATED_USER: '{{resolve:ssm:/prod/google/delegated-user:1}}'
-          SLACK_USER_DISPLAY_NAME: '{{resolve:ssm:/prod/slack/user-display-name:1}}'
-          SLACK_MEMBER_ID: '{{resolve:ssm:/prod/slack/member-id:1}}'
-          PINECONE_API_KEY: '{{resolve:ssm:/prod/pinecone/api-key:1}}'
-          BASE_PINECONE_INDEX_NAME: '{{resolve:ssm:/prod/pinecone/index-name:1}}'
-          DEFAULT_OPENAI_EMBEDDING_MODEL: '{{resolve:ssm:/prod/openai/embedding-model:1}}'
-          DYNAMODB_REGION_NAME: '{{resolve:ssm:/prod/dynamodb/region-name:1}}'
-          TAGS_TABLE: '{{resolve:ssm:/prod/dynamodb/tags-table:1}}'
+          OPENAI_API_KEY: '{{resolve:ssm:/summarizer-ai/prod/openai/api-key:1}}'
+          DEFAULT_OPEN_AI_MODEL: '{{resolve:ssm:/summarizer-ai/prod/openai/model:1}}'
+          DEFAULT_TEMPERATURE: '{{resolve:ssm:/summarizer-ai/prod/openai/temperature:1}}'
+          DEFAULT_MAX_TOKENS: '{{resolve:ssm:/summarizer-ai/prod/openai/max-tokens:1}}'
+          TAVILY_API_KEY: '{{resolve:ssm:/summarizer-ai/prod/tavily/api-key:1}}'
+          SLACK_USER_TOKEN: '{{resolve:ssm:/summarizer-ai/prod/slack/user-token:1}}'
+          GOOGLE_CREDENTIALS_PATH: '{{resolve:ssm:/summarizer-ai/prod/google/credentials-path:1}}'
+          GOOGLE_DELEGATED_USER: '{{resolve:ssm:/summarizer-ai/prod/google/delegated-user:1}}'
+          SLACK_USER_DISPLAY_NAME: '{{resolve:ssm:/summarizer-ai/prod/slack/user-display-name:1}}'
+          SLACK_MEMBER_ID: '{{resolve:ssm:/summarizer-ai/prod/slack/member-id:1}}'
+          PINECONE_API_KEY: '{{resolve:ssm:/summarizer-ai/prod/pinecone/api-key:1}}'
+          BASE_PINECONE_INDEX_NAME: '{{resolve:ssm:/summarizer-ai/prod/pinecone/index-name:1}}'
+          DEFAULT_OPENAI_EMBEDDING_MODEL: '{{resolve:ssm:/summarizer-ai/prod/openai/embedding-model:1}}'
+          DYNAMODB_REGION_NAME: '{{resolve:ssm:/summarizer-ai/prod/dynamodb/region-name:1}}'
+          TAGS_TABLE: !Ref TagsTable
+          SUMMARIES_TABLE: !Ref SummariesTable
+          ENVIRONMENT: '{{resolve:ssm:/summarizer-ai/prod/environment:1}}'
+          LOG_LEVEL: '{{resolve:ssm:/summarizer-ai/prod/log-level:1}}'
+      Tags:
+        Stage: !Ref AWS::StackName
+
+  TagsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: summaries_tags
+      AttributeDefinitions:
+        - AttributeName: uuid
+          AttributeType: S
+      KeySchema:
+        - AttributeName: uuid
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: Stage
+          Value: !Ref AWS::StackName
+        - Key: Project
+          Value: Summarizer AI
+
+  SummariesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: summaries
+      AttributeDefinitions:
+        - AttributeName: uuid
+          AttributeType: S
+      KeySchema:
+        - AttributeName: uuid
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: Stage
+          Value: !Ref AWS::StackName
+        - Key: Project
+          Value: Summarizer AI
+
 Outputs:
   SummarizerApi:
     Description: "API Gateway endpoint URL for Prod stage for Daily Job Summarizer"

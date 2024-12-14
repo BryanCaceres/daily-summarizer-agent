@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Settings:
+    APP_CONFIG: str = os.getenv("APP_CONFIG")
     # General configuration
     DEFAULT_LANGUAGE: str = "Spanish"
     ENVIRONMENT: str = os.getenv("ENVIRONMENT")
