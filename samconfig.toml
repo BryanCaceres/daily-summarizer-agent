@@ -3,7 +3,7 @@
 version = 0.1
 
 [default.global.parameters]
-stack_name = "langchain_daily_job_summary_agent"
+stack_name = "langchain-daily-job-summary-agent"
 
 [default.build.parameters]
 cached = true

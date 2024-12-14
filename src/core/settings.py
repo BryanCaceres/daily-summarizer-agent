@@ -6,9 +6,10 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Settings:
+    APP_CONFIG: str = os.getenv("APP_CONFIG")
     # General configuration
     DEFAULT_LANGUAGE: str = "Spanish"
-
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT")
     # OpenAI configuration
     DEFAULT_MAX_TOKENS = os.getenv("DEFAULT_MAX_TOKENS")
     DEFAULT_OPEN_AI_MODEL = os.getenv("DEFAULT_OPEN_AI_MODEL")
@@ -30,6 +31,11 @@ class Settings:
 
     # Logging configuration
     LOG_LEVEL = os.getenv("LOG_LEVEL")
+
+    # DynamoDB configuration
+    DYNAMODB_REGION_NAME = os.getenv("DYNAMODB_REGION_NAME")
+    TAGS_TABLE = os.getenv("TAGS_TABLE")
+    SUMMARY_TABLE = os.getenv("SUMMARIES_TABLE")
 
     def __init__(self):
         logging.basicConfig(level=self.LOG_LEVEL)
