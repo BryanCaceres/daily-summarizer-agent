@@ -9,6 +9,7 @@ from pinecone import Pinecone, ServerlessSpec
 from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from langchain_core.documents import Document
+import json
 
 class PineconeService:
     """
@@ -86,6 +87,23 @@ class PineconeService:
             filter=filters_by_metadata
         )
         return results
+
+    @staticmethod
+    def flatten_metadata(metadata: dict) -> dict:
+        """
+        Flatten an object to comply with Pinecone requirements
+        """
+        flattened = {}
+        for key, value in metadata.items():
+            if isinstance(value, (str, int, float, bool)):
+                flattened[key] = value
+            elif isinstance(value, list) and all(isinstance(x, str) for x in value):
+                flattened[key] = value
+            elif isinstance(value, dict):
+                flattened[key] = json.dumps(value)
+            else:
+                flattened[key] = str(value)
+        return flattened
 
 
 
