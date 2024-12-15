@@ -4,7 +4,6 @@ from .agent_interface import AIAgentInterface
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from tools import tavily_search_tool
 
-
 agent_prompt_template = GeneralSummarizerPrompt()
 
 class GeneralSummarizerAgent(AIAgentInterface):

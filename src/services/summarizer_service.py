@@ -3,11 +3,13 @@ import traceback
 
 from agents import SlackSummarizerAgent, GmailSummarizerAgent, GeneralSummarizerAgent, TagExtractorAgent
 from .pinecone_service import PineconeService
+from .dynamo.dynamo_db_service import DynamoDbService
 from langchain_core.documents import Document
 from tenacity import retry, stop_after_attempt, wait_exponential
 from .slack_notification_service import SlackNotificationService
 import logging
 from tenacity import retry, stop_after_attempt, wait_exponential
+from core.settings import settings
 
 class SummarizerService:
     """
@@ -21,7 +23,8 @@ class SummarizerService:
         self.general_summarizer = GeneralSummarizerAgent()
         self.vector_store = PineconeService()
         self.tag_extractor = TagExtractorAgent()
-
+        self.summaries_db = DynamoDbService(table_name=settings.SUMMARY_TABLE)
+        
     def execute_summarizer(self, day: str, previous_day: str, next_day: str) -> dict:
         """
         Execute the summarizer process with the different agents
@@ -30,7 +33,7 @@ class SummarizerService:
         :param next_day: YYYY-MM-DD str with the next day
         :return: dict with the summary result
         """
-        logging.info(f"Executing summarizer for date: {day} (prev: {previous_day}, next: {next_day})")
+        logging.debug(f"Executing summarizer for date: {day} (prev: {previous_day}, next: {next_day})")
         
         try:
             gmail_summary_result = self.gmail_summarizer.execute_agent(
@@ -50,26 +53,35 @@ class SummarizerService:
                 gmail_summary_json=gmail_summary_result,
                 slack_summary_json=slack_summary_result
             )
-            
-            logging.info(f"######## General summary result: {general_summary_result}")
-            
+                        
             raw_summary = general_summary_result['summary_result']['daily_summary']
-            
             tag_extractor_result = self.tag_extractor.execute_agent(
                 summary=raw_summary
             )
-            summary_tags = tag_extractor_result['tags_result']
+
+            summary_tags = tag_extractor_result['tags_result']['tags']
             
-            logging.info(f"######## Tag extractor result: {summary_tags['tags']}")
+            people = [tag['name'] for tag in summary_tags if tag['type'] == 'person']
+            projects = [tag['name'] for tag in summary_tags if tag['type'] == 'project']
+            areas = [tag['name'] for tag in summary_tags if tag['type'] == 'area']
             
-            raw_summary = raw_summary + "\n\n" + str(summary_tags)
+            people_str = f"Personas involucradas: {', '.join(people)}"
+            projects_str = f"Proyectos involucrados: {', '.join(projects)}"
+            areas_str = f"Areas involucradas: {', '.join(areas)}"
+            
+            semantic_raw_summary = f"{raw_summary}\n\n{str(people_str)}\n\n{str(projects_str)}\n\n{str(areas_str)}"
 
             self.slack_notification_service.send_notification(
-                    str(raw_summary),
+                    semantic_raw_summary,
                     channel='#daily-bot'
             )
 
-            self.vector_store.add_documents([Document(page_content=raw_summary, metadata={"day": day})])
+            general_summary_result['tags'] = summary_tags
+
+            flattened_metadata = self.vector_store.flatten_metadata(general_summary_result)
+            self.vector_store.add_documents([Document(page_content=semantic_raw_summary, metadata=flattened_metadata)])
+            
+            self.summaries_db.create(general_summary_result)
             
             return {
                 "general_summary_result": general_summary_result,

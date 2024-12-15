@@ -17,7 +17,7 @@ class DailyGmailSummarizerPrompt(PromptsInterface):
             
             You need to read just the emails of the day, you don't need to read any other day, just the day indicated.
             </role>
-            
+
             <task>
             Analyze emails for the specific date {day} only. Follow these steps:
             1. First, retrieve ALL emails for the date using a SINGLE query with 'after:{previous_day}' AND 'before:{next_day}'
