@@ -7,6 +7,8 @@ import logging
 from tenacity import retry, stop_after_attempt, wait_exponential
 agent_prompt_template = DailyGmailSummarizerPrompt()
 from .dummy_agent_responses.gmail_extractor import DUMMY_RESPONSE
+from langsmith import traceable
+
 
 class GmailSummarizerAgent(AIAgentInterface):
     """
@@ -14,12 +16,14 @@ class GmailSummarizerAgent(AIAgentInterface):
     """
     agent_prompt : str = agent_prompt_template.get_prompt()
     tools : List = [*gmail_toolkit]
+    run_name: str = "gmail_summarizer_agent"
 
-    def __init__(self, run_name: str = "gmail_summarizer_agent", dummy_mode: bool = False, dummy_response: dict = DUMMY_RESPONSE):
-        self._set_agent_config(run_name=run_name)
+    def __init__(self, dummy_mode: bool = False, dummy_response: dict = DUMMY_RESPONSE):
+        self._set_agent_config(run_name=self.run_name)
         self.dummy_mode = dummy_mode
         self.dummy_response = dummy_response
 
+    @traceable
     def execute_agent(self, day: str, previous_day: str, next_day: str) -> dict:
         """
         Execute the gmail_summarizer agent

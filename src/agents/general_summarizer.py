@@ -3,6 +3,8 @@ from typing import List
 from .agent_interface import AIAgentInterface
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from tools import tavily_search_tool
+from langsmith import traceable
+
 
 agent_prompt_template = GeneralSummarizerPrompt()
 
@@ -12,10 +14,12 @@ class GeneralSummarizerAgent(AIAgentInterface):
     """
     agent_prompt : str = agent_prompt_template.get_prompt()
     tools : List = [tavily_search_tool]
+    run_name: str = "general_summarizer_agentt"
 
-    def __init__(self, run_name: str = "general_summarizer_agent"):
-        self._set_agent_config(run_name=run_name)
+    def __init__(self):
+        self._set_agent_config(run_name=self.run_name)
 
+    @traceable
     def execute_agent(self, day: str, gmail_summary_json: str, slack_summary_json: str) -> dict:
         """
         Execute the gmail_summarizer agent

@@ -3,8 +3,63 @@ import traceback
 from services import SummarizerService
 from datetime import datetime, timedelta
 import logging
+from uuid import uuid4
+import logging
+
+langsmith_extra={"run_id": uuid4()}
 
 summarizer_service = SummarizerService()
+
+def lambda_handler(event, context):
+    """
+    Lambda handler que soporta múltiples fuentes de eventos
+    """
+    try:
+        # Obtener fecha del evento
+        date_str = get_date_from_event(event)
+        logging.info(f"Received date: {date_str}")
+        
+        # Format date and get adjacent days
+        date, previous_day, next_day = format_date(date_str)
+        
+        generated_run_id = uuid4()
+        logging.info(f"######################## Generated run_id: {generated_run_id}")
+        
+        # Execute summarizer
+        summary_result = summarizer_service.execute_summarizer(
+            day=date,
+            previous_day=previous_day,
+            next_day=next_day,
+            langsmith_extra={"run_id": generated_run_id}
+        )
+        
+        return {
+            "statusCode": 200,
+            "body": json.dumps({
+                "date": date,
+                "previous_day": previous_day,
+                "next_day": next_day,
+                "summary_result": summary_result
+            })
+        }
+        
+    except ValueError as ve:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({
+                "error": "Fecha inválida",
+                "detail": str(ve)
+            })
+        }
+    except Exception as e:
+        traceback.print_exc()
+        return {
+            "statusCode": 500,
+            "body": json.dumps({
+                "error": "Error interno",
+                "detail": str(e)
+            })
+        }
 
 def get_date_from_event(event):
     """
@@ -64,56 +119,9 @@ def format_date(date_str: str = None) -> tuple[str, str, str]:
             prev_date.strftime("%Y-%m-%d"),
             next_date.strftime("%Y-%m-%d")
         )
-        
+ 
     except ValueError:
         raise ValueError(
             f"Formato de fecha inválido: {date_str}. "
             "Debe ser YYYY-MM-DD"
         )
-
-def lambda_handler(event, context):
-    """
-    Lambda handler que soporta múltiples fuentes de eventos
-    """
-    try:
-        # Obtener fecha del evento
-        date_str = get_date_from_event(event)
-        logging.info(f"Received date: {date_str}")
-        
-        # Formatear fecha y obtener días adyacentes
-        date, previous_day, next_day = format_date(date_str)
-        
-        # Ejecutar el summarizer
-        summary_result = summarizer_service.execute_summarizer(
-            day=date,
-            previous_day=previous_day,
-            next_day=next_day
-        )
-        
-        return {
-            "statusCode": 200,
-            "body": json.dumps({
-                "date": date,
-                "previous_day": previous_day,
-                "next_day": next_day,
-                "summary_result": summary_result
-            })
-        }
-        
-    except ValueError as ve:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({
-                "error": "Fecha inválida",
-                "detail": str(ve)
-            })
-        }
-    except Exception as e:
-        traceback.print_exc()
-        return {
-            "statusCode": 500,
-            "body": json.dumps({
-                "error": "Error interno",
-                "detail": str(e)
-            })
-        }

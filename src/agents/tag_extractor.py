@@ -3,6 +3,8 @@ from typing import List
 from .agent_interface import AIAgentInterface
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from tools import get_tags_tool, create_tags_tool
+from langsmith import traceable
+
 
 agent_prompt_template = TagExtractorPrompt()
 
@@ -12,10 +14,12 @@ class TagExtractorAgent(AIAgentInterface):
     """
     agent_prompt : str = agent_prompt_template.get_prompt()
     tools : List = [get_tags_tool, create_tags_tool]
+    run_name: str = "tag_extractor_agent"
 
-    def __init__(self, run_name: str = "tag_extractor_agent"):
-        self._set_agent_config(run_name=run_name)
+    def __init__(self):
+        self._set_agent_config(run_name=self.run_name)
 
+    @traceable
     def execute_agent(self, summary: str) -> dict:
         """
         Execute the tag_extractor agent
