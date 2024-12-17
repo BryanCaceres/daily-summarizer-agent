@@ -63,7 +63,13 @@ class CreateTagsTool(BaseTool):
     
     _usage_count: int = PrivateAttr(default=0)
     _cached_created_tags: List = PrivateAttr(default_factory=list)
+    ########
+    _exclude_callback_manager = True
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._exclude_callback_manager = True
+    ########
     def _run(
         self, 
         tags: List[dict],

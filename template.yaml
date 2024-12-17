@@ -58,6 +58,10 @@ Resources:
           SUMMARIES_TABLE: !Ref SummariesTable
           ENVIRONMENT: '{{resolve:ssm:/summarizer-ai/prod/environment:1}}'
           LOG_LEVEL: '{{resolve:ssm:/summarizer-ai/prod/log-level:1}}'
+          LANGCHAIN_API_KEY: '{{resolve:ssm:/summarizer-ai/prod/langchain/api-key:1}}'
+          LANGCHAIN_TRACING_V2: '{{resolve:ssm:/summarizer-ai/prod/langchain/tracing-feature-flag:1}}'
+          LANGCHAIN_ENDPOINT: '{{resolve:ssm:/summarizer-ai/prod/langchain/endpoint:1}}'
+          LANGCHAIN_PROJECT: '{{resolve:ssm:/summarizer-ai/prod/langchain/project:1}}'
       Tags:
         Stage: !Ref AWS::StackName
 

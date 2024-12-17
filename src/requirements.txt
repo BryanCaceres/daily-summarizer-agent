@@ -11,3 +11,4 @@ tenacity
 langchain-pinecone 
 pinecone-notebooks
 tiktoken>=0.5.1
+langsmith

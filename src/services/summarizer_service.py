@@ -10,6 +10,7 @@ from .slack_notification_service import SlackNotificationService
 import logging
 from tenacity import retry, stop_after_attempt, wait_exponential
 from core.settings import settings
+from langsmith import traceable
 
 class SummarizerService:
     """
@@ -24,7 +25,8 @@ class SummarizerService:
         self.vector_store = PineconeService()
         self.tag_extractor = TagExtractorAgent()
         self.summaries_db = DynamoDbService(table_name=settings.SUMMARY_TABLE)
-        
+    
+    @traceable
     def execute_summarizer(self, day: str, previous_day: str, next_day: str) -> dict:
         """
         Execute the summarizer process with the different agents

@@ -4,6 +4,7 @@ from core.settings import settings
 from typing import Dict, Any
 import logging
 
+
 class SlackNotificationService():
     """
     Notifications for Slack channels

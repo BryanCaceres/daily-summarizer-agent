@@ -6,6 +6,8 @@ from tools import slack_search_toolkit
 from core.settings import settings
 from .dummy_agent_responses.slack_extractor import DUMMY_RESPONSE
 import logging
+from langsmith import traceable
+
 
 agent_prompt_template = DailySlackSummarizerPrompt()
 
@@ -15,12 +17,14 @@ class SlackSummarizerAgent(AIAgentInterface):
     """
     agent_prompt : str = agent_prompt_template.get_prompt()
     tools : List = [*slack_search_toolkit]
+    run_name: str = "slack_summarizer_agent"
 
-    def __init__(self, run_name: str = "slack_summarizer_agent", dummy_mode: bool = False, dummy_response: dict = DUMMY_RESPONSE):
-        self._set_agent_config(run_name=run_name)
+    def __init__(self, dummy_mode: bool = False, dummy_response: dict = DUMMY_RESPONSE):
+        self._set_agent_config(run_name=self.run_name)
         self.dummy_mode = dummy_mode
         self.dummy_response = dummy_response
 
+    @traceable
     def execute_agent(self, day: str, previous_day: str, next_day: str) -> dict:
         """
         Execute the slack summarizer agent
