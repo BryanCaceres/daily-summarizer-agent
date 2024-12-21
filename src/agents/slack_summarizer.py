@@ -62,12 +62,13 @@ class SlackSummarizerAgent(AIAgentInterface):
                 "next_day": next_day,
                 "slack_user_display_name": settings.SLACK_USER_DISPLAY_NAME,
                 "slack_member_id": settings.SLACK_MEMBER_ID,
+                "slack_user_full_name": settings.SLACK_USER_FULL_NAME,
                 "tools": formatted_tools
             }, 
             config=self.agent_config
         )
 
-        logging.debug(f'Result: {result}')
+        logging.debug(f'##################Result of tool calling agent: {result}')
 
         parsed_result = self.json_parser.parse(result.get("output", "{}"))
 

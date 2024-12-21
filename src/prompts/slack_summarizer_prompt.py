@@ -16,7 +16,7 @@ class DailySlackSummarizerPrompt(PromptsInterface):
             Focus on the conversations the user participated in or messages that are relevant to the user. Consider individual messages, threads, and any context required to understand the conversations. Identify key points, tasks, and summarize discussions.
 
             Only analyze Slack messages for the specified day. Do not consider messages before or after that day.
-            The user's name in Slack is {slack_user_display_name} and his member id is {slack_member_id}.
+            The user's name in Slack is {slack_user_display_name} and his member id is {slack_member_id} and his full name is {slack_user_full_name}. Any message with those identifiers are the user messages.
             </role>
 
             <task>
@@ -73,6 +73,7 @@ class DailySlackSummarizerPrompt(PromptsInterface):
             - In key_points, summarize the main topics or conclusions discussed during that day.
             - In important_tasks, identify action items or tasks that should be prioritized or completed.
             - If no messages or relevant data are found, leave those sections empty but still return the JSON structure.
+            - In the messages you find my slack messages, my id is {slack_member_id}, my name is {slack_user_display_name} and my full name is {slack_user_full_name}, consider this information to identify my messages.
             </details>
 
             <tools>
@@ -106,7 +107,7 @@ class DailySlackSummarizerPrompt(PromptsInterface):
             </scratchpad>
         """
         return PromptTemplate(
-            input_variables=["day", "previous_day", "next_day", "tools", "slack_user_display_name", "slack_member_id"],
+            input_variables=["day", "previous_day", "next_day", "tools", "slack_user_display_name", "slack_member_id", "slack_user_full_name"],
             template=TEMPLATE_TEXT,
             partial_variables={
                 "output_language": self.output_language,

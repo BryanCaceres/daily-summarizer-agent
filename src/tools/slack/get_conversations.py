@@ -7,6 +7,8 @@ from langchain_core.callbacks import CallbackManagerForToolRun
 import json
 from slack_sdk.errors import SlackApiError
 import logging
+from .get_users import SlackGetUsers
+from agents.dummy_agent_responses.slack_extractor import DUMMY_RESPONSE
 
 class GetConversationsSchema(BaseModel):
     """Input schema for GetConversationsSchema."""
@@ -29,21 +31,16 @@ class SlackGetConversations(SlackBaseTool):
         "in a specific day, including context and thread replies."
     )
     args_schema: Type[GetConversationsSchema] = GetConversationsSchema
-
+    user_repository: SlackGetUsers = SlackGetUsers()
+    
     def _get_all_messages(self, channel_id: str, start_ts: str, end_ts: str) -> List[Dict[str, Any]]:
         """
         Retrieves all messages from a channel within a time range, handling pagination.
-        
-        Args:
-            channel_id: The ID of the channel to fetch messages from
-            start_ts: Starting timestamp for message retrieval
-            end_ts: Ending timestamp for message retrieval
-            
-        Returns:
-            List of message dictionaries
-            
-        Note:
-            Uses cursor-based pagination to handle large message sets
+        Args:channel_id: The ID of the channel to fetch messages from
+        Args:start_ts: Starting timestamp for message retrieval
+        Args:end_ts: Ending timestamp for message retrieval  
+        Returns:List of message dictionaries
+        Note:Uses cursor-based pagination to handle large message sets
         """
         all_messages: List[Dict[str, Any]] = []
         cursor = None
@@ -58,7 +55,7 @@ class SlackGetConversations(SlackBaseTool):
                     latest=end_ts,
                     inclusive=True
                 )
-                
+                                
                 if not response["ok"]:
                     logging.error(f"Error in API response: {response.get('error', 'Unknown error')}")
                     break
@@ -76,24 +73,14 @@ class SlackGetConversations(SlackBaseTool):
                 
         return all_messages
 
-    def _get_thread_replies(
-        self, 
-        channel_id: str, 
-        thread_ts: str, 
-        start_ts: str, 
-        end_ts: str
-    ) -> List[Dict[str, Any]]:
+    def _get_thread_replies(self, channel_id: str, thread_ts: str, start_ts: str, end_ts: str) -> List[Dict[str, Any]]:
         """
         Retrieves all replies in a thread within a time range.
-        
-        Args:
-            channel_id: The ID of the channel containing the thread
-            thread_ts: Timestamp of the parent message
-            start_ts: Starting timestamp for reply retrieval
-            end_ts: Ending timestamp for reply retrieval
-            
-        Returns:
-            List of reply message dictionaries
+        Args:channel_id: The ID of the channel containing the thread
+        Args:thread_ts: Timestamp of the parent message
+        Args:start_ts: Starting timestamp for reply retrieval
+        Args:end_ts: Ending timestamp for reply retrieval 
+        Returns: List of reply message dictionaries
         """
         try:
             response = self.client.conversations_replies(
@@ -104,7 +91,7 @@ class SlackGetConversations(SlackBaseTool):
                 limit=500,
                 inclusive=True
             )
-            
+                        
             if not response["ok"]:
                 logging.error(f"Error in API response: {response.get('error', 'Unknown error')}")
                 return []
@@ -114,6 +101,34 @@ class SlackGetConversations(SlackBaseTool):
         except SlackApiError as e:
             logging.error(f"Error getting thread replies: {e.response['error']}")
             return []
+
+    def _process_messages(self, messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Process the messages to enrich them with user information"""
+        enriched_messages = []
+        
+        for message in messages:
+            # Enrich the main message
+            enriched_message = message.copy()
+            if "user" in message:
+                user_info = self.user_repository.get_user_info(message["user"])
+                enriched_message["user_full_name"] = user_info["full_name"]
+                enriched_message["user_display_name"] = user_info["display_name"]
+            
+            # Enrich thread messages if they exist
+            if "thread_messages" in message:
+                enriched_thread_messages = []
+                for thread_message in message["thread_messages"]:
+                    enriched_thread_message = thread_message.copy()
+                    if "user" in thread_message:
+                        user_info = self.user_repository.get_user_info(thread_message["user"])
+                        enriched_thread_message["user_full_name"] = user_info["full_name"]
+                        enriched_thread_message["user_display_name"] = user_info["display_name"]
+                    enriched_thread_messages.append(enriched_thread_message)
+                enriched_message["thread_messages"] = enriched_thread_messages
+                
+            enriched_messages.append(enriched_message)
+        
+        return enriched_messages
 
     def _run(
         self,
@@ -141,7 +156,6 @@ class SlackGetConversations(SlackBaseTool):
                 date_obj.year, date_obj.month, date_obj.day, 23, 59, 59
             ).timestamp()
 
-            # Get channels where user is a member
             channels_response = self.client.users_conversations(
                 user=user_id,
                 types="public_channel,private_channel,mpim,im",
@@ -152,9 +166,13 @@ class SlackGetConversations(SlackBaseTool):
             if not channels_response["ok"]:
                 raise SlackApiError("Error getting channels", channels_response)
             
-            conversations = []
+            logging.info(f"################## All Slack Channels in workspace: {channels_response}")
             
+            conversations = []
             for channel in channels_response["channels"]:
+                
+                if channel["name"]:
+                    logging.info(f"################## Searching Slack Messages in channel: {channel['name']}")
                 # Get messages for the specific day
                 channel_messages = self._get_all_messages(
                     channel["id"], 
@@ -189,12 +207,15 @@ class SlackGetConversations(SlackBaseTool):
                         relevant_messages.append(message_data)
                 
                 if relevant_messages:
+                    # Procesar los mensajes antes de agregarlos a las conversaciones
+                    enriched_messages = self._process_messages(relevant_messages)
                     conversations.append({
                         "channel_id": channel["id"],
                         "channel_name": channel.get("name", "direct-message"),
-                        "messages": relevant_messages
+                        "messages": enriched_messages
                     })
             
+
             return json.dumps(conversations, ensure_ascii=False)
             
         except Exception as e:
