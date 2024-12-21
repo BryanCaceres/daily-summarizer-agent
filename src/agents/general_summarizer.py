@@ -5,7 +5,6 @@ from langchain.agents import create_tool_calling_agent, AgentExecutor
 from tools import tavily_search_tool
 from langsmith import traceable
 
-
 agent_prompt_template = GeneralSummarizerPrompt()
 
 class GeneralSummarizerAgent(AIAgentInterface):

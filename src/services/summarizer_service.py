@@ -8,7 +8,6 @@ from langchain_core.documents import Document
 from tenacity import retry, stop_after_attempt, wait_exponential
 from .slack_notification_service import SlackNotificationService
 import logging
-from tenacity import retry, stop_after_attempt, wait_exponential
 from core.settings import settings
 from langsmith import traceable
 
@@ -20,7 +19,7 @@ class SummarizerService:
     def __init__(self, slack_notification_service: SlackNotificationService = None):
         self.slack_notification_service = slack_notification_service if slack_notification_service is not None else SlackNotificationService()
         self.gmail_summarizer = GmailSummarizerAgent(dummy_mode=True)
-        self.slack_summarizer = SlackSummarizerAgent(dummy_mode=True)
+        self.slack_summarizer = SlackSummarizerAgent(dummy_mode=False)
         self.general_summarizer = GeneralSummarizerAgent()
         self.vector_store = PineconeService()
         self.tag_extractor = TagExtractorAgent()

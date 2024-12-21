@@ -50,6 +50,7 @@ Resources:
           GOOGLE_DELEGATED_USER: '{{resolve:ssm:/summarizer-ai/prod/google/delegated-user:1}}'
           SLACK_USER_DISPLAY_NAME: '{{resolve:ssm:/summarizer-ai/prod/slack/user-display-name:1}}'
           SLACK_MEMBER_ID: '{{resolve:ssm:/summarizer-ai/prod/slack/member-id:1}}'
+          SLACK_USER_FULL_NAME: '{{resolve:ssm:/summarizer-ai/prod/slack/user-full-name:1}}'
           PINECONE_API_KEY: '{{resolve:ssm:/summarizer-ai/prod/pinecone/api-key:1}}'
           BASE_PINECONE_INDEX_NAME: '{{resolve:ssm:/summarizer-ai/prod/pinecone/index-name:1}}'
           DEFAULT_OPENAI_EMBEDDING_MODEL: '{{resolve:ssm:/summarizer-ai/prod/openai/embedding-model:1}}'

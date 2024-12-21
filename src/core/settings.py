@@ -28,6 +28,7 @@ class Settings:
     SLACK_USER_TOKEN = os.getenv("SLACK_USER_TOKEN")
     SLACK_USER_DISPLAY_NAME = os.getenv("SLACK_USER_DISPLAY_NAME")
     SLACK_MEMBER_ID = os.getenv("SLACK_MEMBER_ID")
+    SLACK_USER_FULL_NAME = os.getenv("SLACK_USER_FULL_NAME")
 
     # Logging configuration
     LOG_LEVEL = os.getenv("LOG_LEVEL")
