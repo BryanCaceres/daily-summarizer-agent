@@ -17,8 +17,6 @@ class SlackGetChannel(SlackBaseTool):
         self, *args: Any, run_manager: Optional[CallbackManagerForToolRun] = None
     ) -> str:
         try:
-            logging.getLogger(__name__)
-
             result = self.client.conversations_list()
             channels = result["channels"]
             filtered_result = [

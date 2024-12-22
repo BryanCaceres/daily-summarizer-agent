@@ -1,3 +1,7 @@
+"""
+Tavily search tool from langchain docs https://python.langchain.com/docs/integrations/tools/tavily_search/
+"""
+
 from langchain_community.tools import TavilySearchResults
 from core.settings import settings
 

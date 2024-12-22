@@ -6,7 +6,7 @@ from .pinecone_service import PineconeService
 from .dynamo.dynamo_db_service import DynamoDbService
 from langchain_core.documents import Document
 from tenacity import retry, stop_after_attempt, wait_exponential
-from .slack_notification_service import SlackNotificationService
+from .slack.slack_users_service import SlackNotificationService
 import logging
 from core.settings import settings
 from langsmith import traceable

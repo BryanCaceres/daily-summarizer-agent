@@ -1,3 +1,7 @@
+"""
+Gmail tool from langchain docs https://python.langchain.com/docs/integrations/tools/gmail/
+"""
+
 from core.settings import settings
 from langchain_google_community import GmailToolkit
 from langchain_google_community.gmail.utils import (
