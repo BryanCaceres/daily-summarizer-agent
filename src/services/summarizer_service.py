@@ -6,7 +6,7 @@ from .pinecone_service import PineconeService
 from .dynamo.dynamo_db_service import DynamoDbService
 from langchain_core.documents import Document
 from tenacity import retry, stop_after_attempt, wait_exponential
-from .slack.slack_users_service import SlackNotificationService
+from services.slack.slack_channels_service import SlackChannelsService
 import logging
 from core.settings import settings
 from langsmith import traceable
@@ -16,8 +16,8 @@ class SummarizerService:
     Service to execute the summarizer workflow
     Get the summary from the different work sources and send the summary to the slack channel
     """
-    def __init__(self, slack_notification_service: SlackNotificationService = None):
-        self.slack_notification_service = slack_notification_service if slack_notification_service is not None else SlackNotificationService()
+    def __init__(self, slack_notification_service: SlackChannelsService = None):
+        self.slack_notification_service = slack_notification_service if slack_notification_service is not None else SlackChannelsService()
         self.gmail_summarizer = GmailSummarizerAgent(dummy_mode=True)
         self.slack_summarizer = SlackSummarizerAgent(dummy_mode=False)
         self.general_summarizer = GeneralSummarizerAgent()
@@ -72,9 +72,9 @@ class SummarizerService:
             
             semantic_raw_summary = f"{raw_summary}\n\n{str(people_str)}\n\n{str(projects_str)}\n\n{str(areas_str)}"
 
-            self.slack_notification_service.send_notification(
-                    semantic_raw_summary,
-                    channel='#daily-bot'
+            self.slack_notification_service.send_channel_message(
+                    message=semantic_raw_summary,
+                    channel_name='#daily-bot'
             )
 
             general_summary_result['tags'] = summary_tags

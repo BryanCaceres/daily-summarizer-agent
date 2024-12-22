@@ -5,7 +5,7 @@ from .base import SlackBaseTool
 from .utils import UTC_FORMAT
 from langchain_core.callbacks import CallbackManagerForToolRun
 import json
-from services import SlackMessagesService
+from services.slack.slack_messages_service import SlackMessagesService
 from slack_sdk.errors import SlackApiError
 import logging
 from agents.dummy_agent_responses.slack_extractor import DUMMY_RESPONSE

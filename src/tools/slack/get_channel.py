@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Any, Optional
 from pydantic import BaseModel, Field
-from services import SlackChannelsService
+from services.slack.slack_channels_service import SlackChannelsService
 from langchain_core.callbacks import CallbackManagerForToolRun
 from .base import SlackBaseTool
 

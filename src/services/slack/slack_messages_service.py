@@ -4,7 +4,7 @@ from .base_slack_service import BaseSlackService
 import logging
 from datetime import datetime
 import json
-from .slack_users_service import SlackUsersService
+from services.slack.slack_users_service import SlackUsersService
 
 class SlackMessagesService(BaseSlackService):
     """Service for manage messages from a Slack workspace"""

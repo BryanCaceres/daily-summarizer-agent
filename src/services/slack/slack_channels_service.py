@@ -47,7 +47,6 @@ class SlackChannelsService(BaseSlackService):
         except Exception as e:
             return "Error creating conversation: {}".format(e)
 
-    #Antes llamado send_notification, cambiar a send_channel_message
     def send_channel_message(self, message: str, channel_name: str = "#daily-bot", **kwargs: Dict[str, Any]) -> bool:
         """
         Send a message to a specific channel
@@ -58,7 +57,7 @@ class SlackChannelsService(BaseSlackService):
                 text=message
             )
             
-            logging.info(f"################## Slack Notification was sent to channel: {channel}")
+            logging.info(f"################## Slack Notification was sent to channel: {channel_name}")
             
             return True
         except SlackApiError as e:

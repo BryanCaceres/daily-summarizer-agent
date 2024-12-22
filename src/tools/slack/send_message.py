@@ -3,7 +3,7 @@ import logging
 from langchain_core.callbacks import CallbackManagerForToolRun
 from pydantic import BaseModel, Field
 from .base import SlackBaseTool
-from services import SlackChannelsService
+from services.slack.slack_channels_service import SlackChannelsService
 class SendMessageSchema(BaseModel):
     """Input for SendMessageTool."""
 
