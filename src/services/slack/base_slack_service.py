@@ -3,6 +3,7 @@ from typing import Dict, Any, Optional
 from slack_sdk.errors import SlackApiError
 import logging
 from .slack_client import SlackSingletonClient
+import traceback
 
 class BaseSlackService(ABC):
     """
@@ -14,6 +15,9 @@ class BaseSlackService(ABC):
     def _handle_slack_error(self, e: SlackApiError, context: str):
         """
         Centralized error handling for Slack errors
+        Args: e: SlackApiError, 
+        Args: context: str
         """
         logging.error(f"{context}: {str(e)}")
+        logging.error(traceback.format_exc())
         raise

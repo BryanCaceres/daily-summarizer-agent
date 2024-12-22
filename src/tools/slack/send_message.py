@@ -1,9 +1,9 @@
 from typing import Optional, Type
-
+import logging
 from langchain_core.callbacks import CallbackManagerForToolRun
 from pydantic import BaseModel, Field
 from .base import SlackBaseTool
-
+from services import SlackChannelsService
 class SendMessageSchema(BaseModel):
     """Input for SendMessageTool."""
 
@@ -24,6 +24,7 @@ class SlackSendMessage(SlackBaseTool):
     description: str = (
         "Use this tool to send a message with the provided message fields. Its important send the messages just once, do not repeat the sending of a same message."
     )
+    service: SlackChannelsService = SlackChannelsService()
     args_schema: Type[SendMessageSchema] = SendMessageSchema
 
     def _run(
@@ -33,8 +34,12 @@ class SlackSendMessage(SlackBaseTool):
         run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
         try:
-            result = self.client.chat_postMessage(channel=channel, text=message)
-            output = "Message sent: " + str(result)
-            return output
+            message_was_sent = self.service.send_channel_message(message=message)
+            if message_was_sent:
+                return {"message_was_sent": True, "info": "The message was sent successfully", "message_text": message, "channel": channel}
+            else:
+                raise Exception("The message was not sent")
+
         except Exception as e:
-            return "Error creating conversation: {}".format(e)
+            logging.error(f"Error in send_message: {str(e)}", exc_info=True)
+            return "Error sending message: {}".format(e)

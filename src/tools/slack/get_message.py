@@ -4,7 +4,7 @@ from typing import Optional, Type
 from langchain_core.callbacks import CallbackManagerForToolRun
 from pydantic import BaseModel, Field
 from .base import SlackBaseTool
-
+from services import SlackChannelsService
 class SlackGetMessageSchema(BaseModel):
     """Input schema for SlackGetMessages."""
 
@@ -18,6 +18,7 @@ class SlackGetMessage(SlackBaseTool):
 
     name: str = "get_messages"
     description: str = "Use this tool to get messages from a channel."
+    service: SlackChannelsService = SlackChannelsService()
 
     args_schema: Type[SlackGetMessageSchema] = SlackGetMessageSchema
 
@@ -27,13 +28,9 @@ class SlackGetMessage(SlackBaseTool):
         run_manager: Optional[CallbackManagerForToolRun] = None,
     ) -> str:
         try:
-            result = self.client.conversations_history(channel=channel_id)
-            messages = result["messages"]
-            filtered_messages = [
-                {key: message[key] for key in ("user", "text", "ts")}
-                for message in messages
-                if "user" in message and "text" in message and "ts" in message
-            ]
-            return json.dumps(filtered_messages, ensure_ascii=False)
+            channel_messages = self.service.get_channel_messages(channel_id=channel_id)
+            return json.dumps(channel_messages, ensure_ascii=False)
+
         except Exception as e:
-            return "Error creating conversation: {}".format(e)
+            logging.error(f"Error in get_message from channel {channel_id}: {str(e)}", exc_info=True)
+            return "Error getting channel messages: {}".format(e)

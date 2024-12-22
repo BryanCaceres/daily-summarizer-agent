@@ -1,12 +1,12 @@
 from typing import List, Dict, Any
 from slack_sdk.errors import SlackApiError
-from .base_slack_service import SlackBaseClient
+from .base_slack_service import BaseSlackService
 import logging
 from datetime import datetime
 import json
 from .slack_users_service import SlackUsersService
 
-class SlackMessagesService(SlackBaseClient):
+class SlackMessagesService(BaseSlackService):
     """Service for manage messages from a Slack workspace"""
     
     user_service: SlackUsersService = SlackUsersService()
@@ -25,7 +25,7 @@ class SlackMessagesService(SlackBaseClient):
         
         while True:
             try:
-                response = self.client.conversations_history(
+                response = self._slack_client.conversations_history(
                     channel=channel_id,
                     cursor=cursor,
                     limit=500,  # Slack's recommended limit
@@ -61,7 +61,7 @@ class SlackMessagesService(SlackBaseClient):
         Returns: List of reply message dictionaries
         """
         try:
-            response = self.client.conversations_replies(
+            response = self._slack_client.conversations_replies(
                 channel=channel_id,
                 ts=thread_ts,
                 oldest=start_ts,
@@ -129,7 +129,7 @@ class SlackMessagesService(SlackBaseClient):
                 date_obj.year, date_obj.month, date_obj.day, 23, 59, 59
             ).timestamp()
 
-            channels_response = self.client.users_conversations(
+            channels_response = self._slack_client.users_conversations(
                 user=user_id,
                 types="public_channel,private_channel,mpim,im",
                 exclude_archived=True,
@@ -145,7 +145,7 @@ class SlackMessagesService(SlackBaseClient):
             for channel in channels_response["channels"]:
                 
                 if channel["name"]:
-                    logging.info(f"################## Searching Slack Messages in channel: {channel['name']}##################")
+                    logging.debug(f"################## Searching Slack Messages in channel: {channel['name']}##################")
                 # Get messages for a channel in the specific day
                 channel_messages = self._get_all_messages(
                     channel["id"], 

@@ -1,10 +1,10 @@
 from typing import Dict
 from slack_sdk.errors import SlackApiError
-from pydantic import BaseModel, Field
+from pydantic import Field
 import logging
-from .base_slack_service import SlackBaseClient
+from .base_slack_service import BaseSlackService
 
-class SlackUsersService(SlackBaseClient):
+class SlackUsersService(BaseSlackService):
     """Service for manage users from a Slack workspace"""
     
     users_cache: Dict[str, dict] = Field(default_factory=dict, exclude=True)
@@ -19,14 +19,14 @@ class SlackUsersService(SlackBaseClient):
     def fetch_all_users(cls) -> None:
         """Get and save in memory all the users from the workspace"""
         try:
-            response = cls.client.users_list()
+            response = cls._slack_client.users_list()
             for user in response["members"]:
                 cls.users_cache[user["id"]] = {
                     "full_name": user.get("real_name", ""),
                     "display_name": user.get("profile", {}).get("display_name", "")
                 }
         except SlackApiError as e:
-            print(f"Error getting users information: {e}")
+            cls._handle_slack_error(e, "Error getting users information")
 
     def get_user_info(self, user_id: str) -> dict:
         """Get the information of a specific user"""
